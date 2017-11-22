@@ -51,39 +51,39 @@ Rule::Rule()
 	Var=0;
 	OrdRule=0;
 	CatRule=0;
-	
+
 }
 
 Rule::~Rule()
 {
-	
+
 	if(Var && (VarType[Var] == CAT)) {
-		
+
 		delete [] CatRule;
-		
-	
+
+
 	}
 }
 
 void Rule::deall()
 {
 	if(Var && (VarType[Var] == CAT)) {
-		
+
 		delete [] CatRule;
-	
+
 	}
 
 	Var=0;
 	OrdRule=0;
 	CatRule=0;
-	
+
 }
 
 int Rule::Right(double *x)
 // returns 1 if vector x "goes" to right node, 0 else
 {
 	int i;
-	
+
 	if(VarType[Var]==CAT) {
 
 		for(i=1;i<=RuleNum[Var];i++) {
@@ -98,8 +98,8 @@ int Rule::Right(double *x)
 		}
 		//printf("error in Rule::Right, no match found for cat varialble\n");
 		return 0;
-		
-	
+
+
 	} else {
 		if(x[Var]>RuleMat[Var][OrdRule]) {
 			return 1;
@@ -135,7 +135,7 @@ void Node::CopyTree(Node *copy)
 {
 
 	int i;
-	
+
 	copy->Top = Top;
 	copy->Bot = Bot;
 	copy->Nog = Nog;
@@ -160,7 +160,7 @@ void Node::CopyTree(Node *copy)
 }
 
 
-void Node::deall() 
+void Node::deall()
 {
 	if(!Bot) {
 		LeftC->deall();
@@ -185,7 +185,7 @@ void Node::deall()
 		for (i=1;i<=NumX;i++)
 				VarAvail[i]=1;
 	}
-		
+
 }
 
 
@@ -205,6 +205,8 @@ Node::Node()
 	Bot = 1;
 	Nog = 0;
 
+	growable = 1;
+
 	VarAvail = new int [NumX+1];
 	int i;
 	for(i=1;i<=NumX;i++) VarAvail[i]=1;
@@ -217,7 +219,7 @@ Node::~Node()
 	delete [] VarAvail;
 	if(DataList.length) DataList.deall();
 
-	
+
 }
 
 
@@ -344,7 +346,7 @@ int Node::NumBotNodes()
 	if(Bot) {
 		return 1;
 	} else {
-		return (LeftC->NumBotNodes() + RightC->NumBotNodes()); 
+		return (LeftC->NumBotNodes() + RightC->NumBotNodes());
 	}
 }
 
@@ -365,7 +367,7 @@ int Node::NumNogNodes()
 void Node::GetBotList(List **list)
 // gets list of pointers to bottom nodes
 {
-	if(Bot) {	
+	if(Bot) {
 		*list=new List;
 		(**list).length=1;
 		Cell *tempcell;
@@ -391,7 +393,7 @@ void Node::GetNogList(List **list)
 		(**list).length=0;
 	} else {
 
-		if(Nog) {	
+		if(Nog) {
 			*list=new List;
 			(**list).length=1;
 			Cell *tempcell;
@@ -420,7 +422,7 @@ void Node::GetNotBotList(List **list)
 		*list=new List;
 		(**list).length=0;
 	} else if(Nog) {
-			
+
 		*list=new List;
 		(*list)->length=0;
 		AddCellToEnd(*list,(void *)this);
@@ -433,7 +435,7 @@ void Node::GetNotBotList(List **list)
 		AddCellToEnd(*list,(void *)this);
 
 	}
-	
+
 }
 
 void Node::GetSwapsList(List **list)
@@ -461,14 +463,14 @@ void Node::GetSwapsList(List **list)
 void Node::FindNode(double *x,Node **n)
 // gets pointer to bottom node for x
 {
-	
+
 	if(Bot) {
 		*n=this;
 	}
 	else {
 		if(rule.Right(x)) {
 			RightC->FindNode(x,n);
-			
+
 		}
 		else {
 			LeftC->FindNode(x,n);
@@ -491,18 +493,18 @@ voidP* Node::GetBotArray()
 	GetBotList(&bots);
 	//*NBot = bots->length;
 	//*botvec = new NodeP [*NBot+1];
-	
-		
+
+
 	Cell *cell = bots->first;
 	//(*botvec)[1]=(Node *)cell->contents;
 	botArray[1] = (void*)cell->contents;
-	
+
 	for(i=2;i<=nbot;i++) {
 		cell = cell->after;
-		//(*botvec)[i]=(Node *)cell->contents;	
+		//(*botvec)[i]=(Node *)cell->contents;
 		botArray[i] = (void*)cell->contents;
 	}
-	
+
 	bots->deall();
 	delete bots;
 
@@ -520,7 +522,7 @@ int* Node::GetIndPart(int numObs, double** xx)
 	{
 		FindNode(xx[i],&nn);
 		for(j=1;((void*)nn) != botvec[j];j++);
-		indPart[i] = j;	
+		indPart[i] = j;
 	}
 	delete [] botvec;
 	return indPart;
@@ -545,7 +547,7 @@ double** Node::GetFits(void* model,int  nTrain,double** xTrain, double** xTrainR
 	fits[2] = new double[nTest+1];
 
 	int nbot = NumBotNodes();
-	
+
 	int* indObsTrain=0;
 	int* indObsTest=0;
 	int nobTrain=0,nobTest=0;
@@ -582,7 +584,7 @@ double** Node::GetFits(void* model,int  nTrain,double** xTrain, double** xTrainR
 
 		delete [] indObsTrain;
 		delete [] indObsTest;
-		
+
 
 	}
 
@@ -637,16 +639,16 @@ void Node::currentFits(MuS* mod,int nTrain,double** xTrain,double* yTrain,int nT
 double** Node::GetEstimates(void* model,int  nTrain,double** xTrain, double** xTrainR, double* yTrain, double* w)
 {
 	EndNodeModel* mod = (EndNodeModel*)model;
-	
+
 	int edim = mod->getEstimateDim();
 	int nbot = NumBotNodes();
-	
+
 	double** estimates = Lib::almat(nbot,edim);
 
 	int* indPartTrain = GetIndPart(nTrain,xTrain);
 	int i,j;
 	int* indObsTrain=0;
-	
+
 	int nobTrain=0;
 	int count;
 	double* tempCoef=0;
@@ -684,54 +686,54 @@ void Node::SetData()
 void Node::SetData(int i)
 {
 
-	
+
 	Cell *cell;
-	
+
 	cell=new Cell;
 	cell->contents= (&Ivec[i]);
 	cell->End=1;
-	
-	
+
+
 
 	if(DataList.length==0) {
-	
+
 		DataList.first=cell;
 		DataList.last=cell;
-					
+
 		cell->Beg=1;
-		
-			
-		
+
+
+
 	} else {
-			
-			
+
+
 			DataList.last->End=0;
 			DataList.last->after=cell;
 			cell->before=DataList.last;
 			DataList.last=cell;
-			
+
 			cell->Beg=0;
-			
+
 	}
-	
+
 	DataList.length +=1;
-			
+
 	if (!Bot){
 
 		if(rule.Right(XDat[i])) {
 			RightC->SetData(i);
-			
+
 		}
 		else {
 			LeftC->SetData(i);
 		}
-		
-	
+
+
 	}
-	
-	
+
+
 }
-	
+
 
 
 
@@ -784,7 +786,7 @@ int AddChildsInd(Node *n,int var,int cut)
 
 	int LeftI,RightI;
 	GetSplitInterval(&LeftI,&RightI,n,var);
-	if(cut<LeftI) 
+	if(cut<LeftI)
 	{
 		Rprintf("AddChilds: error, cut<LeftI");
 		return 0;
@@ -794,7 +796,7 @@ int AddChildsInd(Node *n,int var,int cut)
 		Rprintf("AddChilds: error, cut>LeftI");
 		return 0;
 	}
-	
+
 	int LeftEx=0;
 	int RightEx=0;
 
@@ -805,7 +807,7 @@ int AddChildsInd(Node *n,int var,int cut)
 	(n->rule).Var=var;
 	(n->rule).OrdRule = cut;
 
-	
+
 	if((n->rule).OrdRule==LeftI) LeftEx=1;
 	if((n->rule).OrdRule==RightI) RightEx=1;
 
@@ -827,9 +829,9 @@ int AddChildsVal(Node *n, int var, double cutVal)
 	int i;
 	int index=1;
 	double minV=myDoubleAbs(cutVal-RuleMat[var][1]);
-	for(i=2;i<=RuleNum[var];i++) 
+	for(i=2;i<=RuleNum[var];i++)
 	{
-		if(myDoubleAbs(cutVal-RuleMat[var][i])<minV) 
+		if(myDoubleAbs(cutVal-RuleMat[var][i])<minV)
 		{
 			minV = myDoubleAbs(cutVal-RuleMat[var][i]);
 			index = i;
@@ -848,7 +850,7 @@ void getVarUsage(Node* node, int depth, int nodeIndex, std::vector<VarUsage>& vu
       if(!node->Nog) {
          getVarUsage(node->LeftC,depth+1,2*nodeIndex+1,vu);
          getVarUsage(node->RightC,depth+1,2*nodeIndex+2,vu);
-      } 
+      }
    }
 }
 
@@ -858,7 +860,7 @@ void printVarUsageVector(const std::vector<VarUsage>& vs)
    /*
    std::cout << "Printing Variable Usage Vector:\n";
    std::cout << "Depth\tNode\tVariable\n";
-   for(std::vector<VarUsage>::size_type i=0;i!=vs.size();i++) 
+   for(std::vector<VarUsage>::size_type i=0;i!=vs.size();i++)
       std::cout << vs[i].depth << "\t" << vs[i].nodeIndex << "\t" << vs[i].varIndex << "\n";
    */
 }

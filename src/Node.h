@@ -33,12 +33,15 @@ public:
 	Node();
 	~Node();
 
-	// next three are indicators for 
+	// next three are indicators for
 	// whether the node is a top, bottom, or nogrand
 	int Top;
 	int Bot;
 	int Nog;
-	
+
+	// used in the PG Sampler, whether the node is eligible for expansion
+	int growable;
+
 	// pointers for tree structure
 	Node *Parent;
 	Node *LeftC;
@@ -48,7 +51,7 @@ public:
 	Rule rule;
 	int *VarAvail; // ith is 1 if variable i has rules left, 0 else
 
-	
+
 	//list of observations corresponding to node
 	List DataList;
 

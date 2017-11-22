@@ -10,6 +10,8 @@
 #define LOGIT_REG		  2
 #define POISSON_REG		  3
 
+#define PI 3.14159265358979323
+
 extern double pBD;
 extern double pSwap;
 extern double pChange;
@@ -17,6 +19,7 @@ extern double pChange;
 extern int NumX;
 extern int *VarType;
 extern int NumY;
+extern int NumParticle;
 
 extern int NumObs;
 extern double **XDat;
@@ -26,8 +29,8 @@ extern double **XDatR;
 extern int NumXR;
 extern double* weights;
 
-extern int *RuleNum; 
-extern double **RuleMat; 
+extern int *RuleNum;
+extern double **RuleMat;
 
 extern int *Ivec; //global vector defined to be 1,2,3,...NumObs in main
 
