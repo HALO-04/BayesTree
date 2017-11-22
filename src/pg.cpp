@@ -1,5 +1,17 @@
 #include "pg.h"
 
+
+
+void InitCachetemp(Cachetemp* cachetemp){
+
+}
+
+
+
+
+
+
+
 void Initparticles(Particle** particle_vec, int len){
     for(int i = 0; i < len; i++){
         Particle* cur_particle = *(particle_vec + i);

@@ -7,14 +7,22 @@
 
 extern NumParticles;
 
-class cachetemp{
+class Cachetemp{
+public:
+    //param
+    double mu_prec;
+    double mu_mean;
+
+    //cache
     double half_log_2pi;
     double nn_prior_term;
     double sumy;
     double sumy2;
     double loglik;
-    double
 }
+
+void InitCachetemp(Cachetemp* cachetemp);
+
 
 class Particle{
 public:

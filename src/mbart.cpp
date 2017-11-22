@@ -53,6 +53,7 @@ int *RuleNum; // integer vec of length NumX, ith is number of split
 				// points for ORD var and number of CATs for CAT var
 double **RuleMat; // ragged array, ith row has RuleNum values, split values
 					// for ORD, cat values for CAT
+Cachetemp cachetemp; // used to compute weights in PG Sampler
 
 int *Ivec;
 
