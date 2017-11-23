@@ -596,44 +596,45 @@ double** Node::GetFits(void* model,int  nTrain,double** xTrain, double** xTrainR
 
 
 void Node::currentFits(MuS* mod,int nTrain,double** xTrain,double* yTrain,int nTest,double** xTest,double* w, double **fits)
+
 {
         double ybar,postmu,postsd,b,a; //posterior of mu in a bottom node
         double nodeMu; //draw of mu, for a bottom node
 
         voidP* botvec = GetBotArray(); //bottom nodes
-	int* indPartTest;
-	if(nTest) indPartTest = GetIndPart(nTest,xTest); //partition of test x re bottom nodes
+		int* indPartTest;
+		if(nTest) indPartTest = GetIndPart(nTest,xTest); //partition of test x re bottom nodes
 
-	int nbot = NumBotNodes();
-	int nobTrain=0;
+		int nbot = NumBotNodes();
+		int nobTrain=0;
         int *itr;
 
-	for(int i=1;i<=nbot;i++) { // loop over bottom nodes-------------
-                //data is list of indices of train obs in the bottom node
-                List& data = ((Node *)botvec[i])->DataList;
-                nobTrain = data.length;
-                itr = new int[nobTrain+1]; //copy list contents to itr
+		for(int i=1;i<=nbot;i++) { // loop over bottom nodes-------------
+            //data is list of indices of train obs in the bottom node
+            List& data = ((Node *)botvec[i])->DataList;
+            nobTrain = data.length;
+            itr = new int[nobTrain+1]; //copy list contents to itr
 
-                Cell *cell = data.first;
-                if(nobTrain>0) itr[1]=*((int *)(cell->contents));
-                ybar = yTrain[itr[1]];
-                for(int j=2;j<=nobTrain;j++) {
-                   cell = cell->after;
-                   itr[j]=*((int *)(cell->contents));
-                   ybar += yTrain[itr[j]];
-                }
-                ybar /= nobTrain;
+            Cell *cell = data.first;
+            if(nobTrain>0) itr[1]=*((int *)(cell->contents));
+            ybar = yTrain[itr[1]];
+            for(int j=2;j<=nobTrain;j++) {
+               cell = cell->after;
+               itr[j]=*((int *)(cell->contents));
+               ybar += yTrain[itr[j]];
+            }
+            ybar /= nobTrain;
 
-                b=nobTrain/mod->getSigma2();a=mod->getA();
-                postmu = b*ybar/(a+b); postsd = 1.0/sqrt(a+b);
-                nodeMu = postmu + postsd*norm_rand();
+            b=nobTrain/mod->getSigma2();a=mod->getA();
+            postmu = b*ybar/(a+b); postsd = 1.0/sqrt(a+b);
+            nodeMu = postmu + postsd*norm_rand();
 
-		for(int j=1;j<=nTest;j++) {if(indPartTest[j]==i) fits[2][j]=nodeMu; }
-		for(int j=1;j<=nobTrain;j++) fits[1][itr[j]] = nodeMu;
+			for(int j=1;j<=nTest;j++) {if(indPartTest[j]==i) fits[2][j]=nodeMu; }
+			for(int j=1;j<=nobTrain;j++) fits[1][itr[j]] = nodeMu;
 
-                delete [] itr;
-	} //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	if(nTest) delete [] indPartTest;
+            delete [] itr;
+		} //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+		if(nTest) delete [] indPartTest;
         delete [] botvec;
 }
 double** Node::GetEstimates(void* model,int  nTrain,double** xTrain, double** xTrainR, double* yTrain, double* w)
