@@ -5,13 +5,13 @@
 #include "Queue.h"
 #include "global.h"
 
-extern NumParticles;
-
 class Cachetemp{
 public:
     //param
     double mu_prec;
     double mu_mean;
+    double lambda_bart;
+    double log_lambda_bart;
 
     //cache
     double half_log_2pi;
@@ -21,8 +21,9 @@ public:
     double loglik;
 }
 
-void InitCachetemp(Cachetemp* cachetemp);
+void InitCachetemp(Cachetemp* cachetemp, double m_bart, double k_bart, double mlambda_bart);
 
+void UpdateCachetemp(Cachetemp* cachetemp, double m_bart);
 
 class Particle{
 public:
@@ -34,9 +35,13 @@ public:
     //queue for expansion
     Queue equeue;
 
+    bool growable;
+
 }
 
-void Initparticles(Particle** particle_vec, int len);
+void Runsample(Particle** particle_vec, int len, Cachetemp* cachetemp);
+
+void Initparticles(Particle** particle_vec, int len, const Cachetemp* cachetemp);
 
 void Setparticlebytree(Particle* particle, Node* oldtree);
 
