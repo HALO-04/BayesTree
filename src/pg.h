@@ -29,9 +29,6 @@ class Particle{
 public:
     Node* thetree;
 
-    //variable used for resample in pg sampler
-    double log_weight;
-
     //queue for expansion
     Queue equeue;
 

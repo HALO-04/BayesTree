@@ -35,52 +35,57 @@ void UpdateCachetemp(Cachetemp* cachetemp, double m_bart){
 void Runsample(Node* thetree, Cachetemp* cachetemp){
 
     Particle**  particle_vec = new Particle*[NumParticle + 1];
-    Initparticles(particle_vec, NumParticle, cachetemp);
+    double* weight_vec = new double[NumParticle + 1];
+    Initparticles(particle_vec, weight_vec, NumParticle, cachetemp);
+
     Particle* first_particle = *(particle_vec + 1);
-    Setparticlebytree(first_particle, thetree);
+    thetree->CopyTree(first_particle->thetree);
+    first_particle->growable = false;
 
     while(true){
-        double sum_weight = first_particle->weight;
+        double sum_weight = weight_vec[1];
         for(int i = 2; i <= len; i++){
             Particle* cur_particle = *(particle_vec + i);
             bool done = Growparticle(cur_particle);
             if(done){
-                Updateweight(cur_particle);
+                Updateweight(cur_particle, weight_vec, i);
             }
-            sum_weight += cur_particle->weight;
+            sum_weight += weight_vec[i];
         }
-        for(int i = 1; i < NumParticle; i++) *(particle_vec + i)->weight /= sum_weight;
-        resample(particle_vec, NumParticle);
+        for(int i = 1; i < NumParticle; i++) weight_vec[i] /= sum_weight;
+        resample(particle_vec, weight_vec, NumParticle);
         if(!Checkgrow(particle_vec, NumParticle)) break;
     }
 
-    int select_idx = Selectparticle(particle_vec, NumParticle);
-    Settreebyparticle(thetree, *(particle_vec + idx));
+    int select_idx = Selectparticle(particle_vec, weight_vec, NumParticle);
+    Particle* selected = *(particle_vec + select_idx);
+    thetree->deall();
+    selected->CopyTree(thetree);
 
     for(int i = 1; i <= NumParticle; i++) delete *(particle_vec + i);
     delete[] particle_vec;
+    delete[] weight_vec;
 }
 
 
 
 
-void Initparticles(Particle** particle_vec, int len, const Cachetemp* cachetemp){
+void Initparticles(Particle** particle_vec, double* weight_vec, int len, const Cachetemp* cachetemp){
     for(int i = 1; i <= len; i++){
         Particle* cur_particle = *(particle_vec + i);
         cur_particle->thetree = new Node;
+        cur_particle->thetree->SetData();
+
         cur_particle->equeue.append(cur_particle->thetree);
         cur_particle->growable = true;
 
-        cur_particle->weight = cachetemp->loglik;
+        weight_vec[i] = cachetemp->loglik;
     }
 }
 
 void Growparticle(Particle* p){
 
 }
-
-
-void Setparticlebytree(Particle* particle, Node* oldtree);
 
 void Settreebyparticle(Node* dsttree, Particle* particle);
 
