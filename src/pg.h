@@ -1,10 +1,18 @@
 #ifndef PG_Sampler
 #define PG_Sampler
 
+
+
 #include "Node.h"
 #include "Queue.h"
+#include "Likelihood.h"
 #include "global.h"
+#include "Lib.h"
 
+#include <R.h>
+#include <Rmath.h>
+
+/*
 class Cachetemp{
 public:
     //param
@@ -24,6 +32,7 @@ public:
 void InitCachetemp(Cachetemp* cachetemp, double m_bart, double k_bart, double mlambda_bart);
 
 void UpdateCachetemp(Cachetemp* cachetemp, double m_bart);
+*/
 
 class Particle{
 public:

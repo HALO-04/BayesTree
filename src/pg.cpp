@@ -1,7 +1,7 @@
 #include "pg.h"
 
 
-
+/*
 void InitCachetemp(Cachetemp* cachetemp, double m_bart, double k_bart, double mlambda_bart){
 	this->mu_mean = 0;
 	this->mu_prec = m_bart * (2 * k_bart) * (2 * k_bart);
@@ -30,7 +30,7 @@ void UpdateCachetemp(Cachetemp* cachetemp, double m_bart){
 					+ 0.5 * (NumObs * this->log_lambda_bart - std::log(mu_prec_post))
 					+ mu_prec_post * mu_mean_post * mu_mean_post - this->lambda_bart * this->sumy2;
 }
-
+*/
 
 void Runsample(Node* thetree, Cachetemp* cachetemp){
 
@@ -40,7 +40,6 @@ void Runsample(Node* thetree, Cachetemp* cachetemp){
 
     Particle* first_particle = *(particle_vec + 1);
     thetree->CopyTree(first_particle->thetree);
-    first_particle->growable = false;
 
     while(true){
         double sum_weight = weight_vec[1];
@@ -71,8 +70,9 @@ void Runsample(Node* thetree, Cachetemp* cachetemp){
 
 
 void Initparticles(Particle** particle_vec, double* weight_vec, int len, const Cachetemp* cachetemp){
+    Particle* cur_particle;
     for(int i = 1; i <= len; i++){
-        Particle* cur_particle = *(particle_vec + i);
+        cur_particle = *(particle_vec + i);
         cur_particle->thetree = new Node;
         cur_particle->thetree->SetData();
 
@@ -81,15 +81,45 @@ void Initparticles(Particle** particle_vec, double* weight_vec, int len, const C
 
         weight_vec[i] = cachetemp->loglik;
     }
+
+    double loglik = LogLNode(cur_particle->thetree);
+    for(int i = 1; i <= len; i++) weight_vec[i] = loglik;
+
 }
 
-void Growparticle(Particle* p){
+bool Growparticle(Particle* p){
+    Queue* q = &(p->equeue);
+
+    if(q->empty()) return false;
+
+    Node* grow_node = (Node*)q->pop();
+    double psplit = PriParams.base / pow(1.0+Depth(grow_node), PriParams.power);
+
+
+    if(Bern(psplit)){
+
+    }
+    else{
+        return false;
+    }
 
 }
 
-void Settreebyparticle(Node* dsttree, Particle* particle);
 
 void Releaseparticle(Particle* particle){
     if(!(particle->thetree))
         delete particle->thetree;
 }
+
+bool Checkgrow(particle_vec, NumObs){
+    Particle* cur;
+    for(int i = 1; i <= NumObs; i++){
+        cur = *(particle_vec + i);
+        if(cur->growable)
+            return true;
+    }
+    return false;
+}
+
+
+

@@ -10,8 +10,6 @@
 #define LOGIT_REG		  2
 #define POISSON_REG		  3
 
-#define PI 3.14159265358979323
-
 extern double pBD;
 extern double pSwap;
 extern double pChange;
@@ -40,6 +38,6 @@ extern int *Ivec; //global vector defined to be 1,2,3,...NumObs in main
 
 extern CPriParams PriParams;
 extern EndNodeModel* endNodeModel;
-extern Cachetemp cachetemp;
+//extern Cachetemp cachetemp;
 
 
