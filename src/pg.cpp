@@ -157,20 +157,28 @@ bool DrValidSplit(Node* gnode, int* var, int* split_idx){
             second_bound = PGLowerBound(RuleMat[tvar] + 1, RuleNum[tvar], x_max);
             if(first_bound < second_bound){
                 (*var) = tvar;
-
+                double u = unif_rand();
                 //need a uniform sample
-
-                (*split_idx) = first_bound + 1;
+                int offset = (int)floor(u * (second_bound - first_bound));
+                (*split_idx) = first_bound + offset + 1;
                 delete[] n_dim;
                 return true;
             }
         }else{
             // CAT cases
+            int* n_split = new int[ReluNum[tvar] + 1];
+            while(true){
+                pIvec = (int*)cur_cell->contents;
+                tmp_value = XDat[*pIvec][tvar];
+
+                if(cur_cell->End)
+                    break;
+                cur_cell = cur_cell->after;
+            }
         }
     }
-
     delete[] n_dim;
-
+    return false;
 }
 
 int PGLowerBound(int *vec, int len, double value){
