@@ -195,7 +195,8 @@ double BirthDeath(Node *top,int *BD,int *Done)
 
 	int VarI;
 	int LeftEx,RightEx;
-	double alpha1,alpha2,alpha;
+	do
+	uble alpha1,alpha2,alpha;
 
 
 	double Ly,Lx;

@@ -95,13 +95,85 @@ bool Growparticle(Particle* p){
     Node* grow_node = (Node*)q->pop();
     double psplit = PriParams.base / pow(1.0+Depth(grow_node), PriParams.power);
 
+    bool status;
+    int split_var;
+    int split_idx;
 
-    if(Bern(psplit)){
-
-    }
-    else{
+    if(!Bern(psplit))
         return false;
+    status = DrValidSplit(grow_node, &split_var, &split_idx);
+    if(!status)
+        return false;
+
+
+
+}
+
+
+bool DrValidSplit(Node* gnode, int* var, int* split_idx){
+    int Ngood = SumGoodVar(gnode);
+
+    int* n_dim = new int[Ngood + 1];
+
+    int i;
+    int k = 0;
+    for(i = 1; i <= NumObs; i++) {
+        if(gnode->VarAvail[i]) {
+            k++;
+            n_dim[k] = i;
+        }
     }
+    std::random_shuffle(n_dim + 1, n_dim + Ngood + 1);
+
+    int tvar, length;
+    int first_bound, second_bound;
+    double x_min, x_max, tmp_value;
+
+    Cell* cur_cell;
+    int* pIvec;
+
+    length = grow_node->DataList.length;
+
+    for(i = 1; i <= Ngood; i++){
+        tvar = n_dim[i];
+        cur_cell = grow_node->DataList.first;
+        // risk of cur_cell = NULL
+
+        if(VarType[tvar] == ORD){
+            x_min = DBL_MAX;
+            x_max = -1.0 * DBL_MAX;
+            while(true){
+                pIvec = (int*)cur_cell->contents;
+                tmp_value = XDat[*pIvec][tvar];
+                if(tmp_value > x_max)
+                    x_max = tmp_value;
+                if(tmp_value < x_min)
+                    x_min = tmp_value;
+                if(cur_cell->End)
+                    break;
+                cur_cell = cur_cell->after;
+            }
+            first_bound = PGLowerBound(RuleMat[tvar] + 1, RuleNum[tvar], x_min);
+            second_bound = PGLowerBound(RuleMat[tvar] + 1, RuleNum[tvar], x_max);
+            if(first_bound < second_bound){
+                (*var) = tvar;
+
+                //need a uniform sample
+
+                (*split_idx) = first_bound + 1;
+                delete[] n_dim;
+                return true;
+            }
+        }else{
+            // CAT cases
+        }
+    }
+
+    delete[] n_dim;
+
+}
+
+int PGLowerBound(int *vec, int len, double value){
 
 }
 

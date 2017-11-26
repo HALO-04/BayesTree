@@ -9,6 +9,8 @@
 #include "global.h"
 #include "Lib.h"
 
+#include <float.h>
+#include <Random>
 #include <R.h>
 #include <Rmath.h>
 
@@ -45,13 +47,19 @@ public:
 
 }
 
-void Runsample(Particle** particle_vec, int len, Cachetemp* cachetemp);
+void RunSample(Particle** particle_vec, int len, Cachetemp* cachetemp);
 
-void Initparticles(Particle** particle_vec, int len, const Cachetemp* cachetemp);
+void InitParticles(Particle** particle_vec, int len, const Cachetemp* cachetemp);
 
-void Setparticlebytree(Particle* particle, Node* oldtree);
+void SetParticlebyTree(Particle* particle, Node* oldtree);
 
-void Settreebyparticle(Node* dsttree, Particle* particle);
+void SetTreebyParticle(Node* dsttree, Particle* particle);
 
-void Releaseparticle(Particle* particle);
+void ReleaseParticle(Particle* particle);
+
+bool DrValidSplit(Node* gnode);
+
+int PGLowerBound(int *vec, int len);
+
+
 #endif
