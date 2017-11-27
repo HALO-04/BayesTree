@@ -172,4 +172,25 @@ int Lib::Disc(Vec& p)
     }
     return i;
 }
+
+void Lib::SampleMultinomial(double* probs, int size, int* result, int n){
+    int i, k;
+    double u, cumsum;
+    result[1] = 1;
+
+    for(k = 2; k <= n; k++){
+        result[k] = size;
+        u = unif_rand();
+        cumsum = 0;
+        for(i = 1; i <= size; i++){
+            cumsum += probs[i];
+            if(u <= cumsum){
+                result[k] = i;
+                break;
+            }
+        }
+    }
+}
+
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

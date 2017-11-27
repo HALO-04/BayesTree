@@ -47,9 +47,9 @@ public:
 
 }
 
-void RunSample(Particle** particle_vec, int len, Cachetemp* cachetemp);
+void RunSample(Node* thetree);
 
-void InitParticles(Particle** particle_vec, int len, const Cachetemp* cachetemp);
+void InitParticles(Particle** particle_vec, int len);
 
 void SetParticlebyTree(Particle* particle, Node* oldtree);
 
