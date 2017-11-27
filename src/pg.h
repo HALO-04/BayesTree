@@ -59,6 +59,8 @@ void ReleaseParticle(Particle* particle);
 
 bool DrValidSplit(Node* gnode);
 
+int SelectParticle(Particle** particle_vec, double* weight_vec, int size);
+
 int PGLowerBound(int *vec, int len);
 
 

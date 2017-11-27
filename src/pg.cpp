@@ -57,7 +57,7 @@ void Runsample(Node* thetree){
         if(!Checkgrow(particle_vec, NumParticle)) break;
     }
 
-    int select_idx = Selectparticle(particle_vec, weight_vec, NumParticle);
+    int select_idx = SelectParticle(particle_vec, weight_vec, NumParticle);
     Particle* selected = *(particle_vec + select_idx);
     thetree->deall();
     selected->CopyTree(thetree);
@@ -248,6 +248,34 @@ void Resample(Particle** particle_vec, double* log_weight_vec, int size){
     delete[] new_particle_vec;
     delete[] sample_index;
     delete[] weight_norm;
+}
+
+int SelectParticle(Particle** particle_vec, double* log_weight_vec, int size){
+    double* weight = new double[size + 1];
+    int i;
+    double max = -1.0 * DBL_MAX;
+    for(i = 1; i <= size; i++){
+        if(max < log_weight_vec[i])
+            max = log_weight_vec[i];
+    }
+    double sum = 0;
+    for(i = 1; i <= size; i++){
+        weight[i] = log_weight_vec[i] - max;
+        weight[i] = std::exp(weight[i]);
+        sum += weight[i];
+    }
+    double u = unif_rand();
+    int result = size;
+    double cumsum = 0;
+    for(i = 1; i <= size; i++){
+        weight[i] /= sum;
+        cumsum += weight[i];
+        if(u <= cumsum){
+            result = i;
+            break;
+        }
+    }
+    return result;
 }
 
 

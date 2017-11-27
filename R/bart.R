@@ -1,11 +1,11 @@
 bart = function(
    x.train, y.train, x.test=matrix(0.0,0,0),
-   sigest=NA, sigdf=3, sigquant=.90, 
+   sigest=NA, sigdf=3, sigquant=.90,
    k=2.0,
    power=2.0, base=.95,
    binaryOffset=0,
    ntree=200,
-   ndpost=1000, nskip=100,
+   ndpost=1000, nskip=100, usepg=TRUE, numparticles = 10,
    printevery=100, keepevery=1, keeptrainfits=TRUE,
    usequants=FALSE, numcut=100, printcutoffs=0,
    verbose=TRUE
@@ -58,11 +58,13 @@ bart = function(
    if((mode(ndpost)!="numeric") || (ndpost<0)) stop("input ndpost must be a positive number")
    if((mode(nskip)!="numeric") || (nskip<0)) stop("input nskip must be a positive number")
    if((mode(k)!="numeric") || (k<0)) stop("input k must be a positive number")
+   if((mode(numparticles)!="numeric") || (numparticles<=0)) stop("input numparticles must be a positive number")
    if(mode(numcut)!="numeric") stop("input numcut must be a numeric vector")
    if(length(numcut)==1) numcut = rep(numcut,ncol(x.train))
    if(length(numcut) != ncol(x.train)) stop("length of numcut must equal number of columns of x.train")
    numcut = as.integer(numcut)
    if(min(numcut)<1) stop("numcut must be >= 1")
+   if(typeof(usepg) != "logical") stop("input usepg must a logical variable")
    if(typeof(usequants)  != "logical") stop("input usequants must a logical variable")
    if(typeof(keeptrainfits)  != "logical") stop("input keeptrainfits must a logical variable")
    if(typeof(verbose)  != "logical") stop("input verbose must a logical variable")
@@ -79,7 +81,7 @@ bart = function(
    # sigest is on the scale of the transformed y, so we do the lm after the scaling above...
    if(!binary) {
       if (is.na(sigest)) {
-         templm = lm(y~x.train) 
+         templm = lm(y~x.train)
          sigest = summary(templm)$sigma
       } else {
          sigest = sigest/(rgy[2]-rgy[1]) #put input sigma estimate on transformed scale
@@ -104,23 +106,23 @@ bart = function(
                    as.double(k),
 		   as.double(power), as.double(base),
 		   as.double(binaryOffset),
-		   as.integer(ntree),      as.integer(totnd),
+		   as.integer(ntree), as.integer(totnd), as.integer(usepg), as.integer(numparticles),
                    as.integer(printevery), as.integer(keepevery),  as.integer(keeptrainfits),
                    as.integer(numcut), as.integer(usequants), as.integer(printcutoffs),
 		   as.integer(verbose),
-                   sdraw=double(nctot), 
+                   sdraw=double(nctot),
                    trdraw=double(nrow(x.train)*nctot),
                    tedraw=double(nrow(x.test)*nctot),
                    vcdraw=integer(ncol(x.train)*nctot))
-	
+
    # now read in the results...
    if(!binary) {
    sigma = cres$sdraw*(rgy[2]-rgy[1])
-   first.sigma = sigma[1:ncskip] # we often want the sigma draws 
+   first.sigma = sigma[1:ncskip] # we often want the sigma draws
    sigma = sigma[ncskip+(1:ncpost)]
 
    # put sigest on the original y scale for output purposes
-   sigest = sigest*(rgy[2]-rgy[1]) 
+   sigest = sigest*(rgy[2]-rgy[1])
    }
 
    yhat.train = yhat.test = yhat.train.mean = yhat.test.mean = NULL

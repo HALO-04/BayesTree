@@ -20,6 +20,7 @@
 #include "Prior.h"
 #include "MuS.h"
 #include "Sdev.h"
+#include "pg.h"
 
 extern "C" {
 void F77_NAME(dcopy)(const int *n, const double *dx, const int *incx, double *dy, const int *incy);
@@ -49,11 +50,13 @@ double **XDatR;	// x data, used in regression model
 int NumXR;		// number of columns in XDatR
 double* weights;
 
+int NumParticle; // number of particles used in PG sampler
+
 int *RuleNum; // integer vec of length NumX, ith is number of split
 				// points for ORD var and number of CATs for CAT var
 double **RuleMat; // ragged array, ith row has RuleNum values, split values
 					// for ORD, cat values for CAT
-Cachetemp cachetemp; // used to compute weights in PG Sampler
+//Cachetemp cachetemp; // used to compute weights in PG Sampler
 
 int *Ivec;
 
@@ -73,7 +76,7 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
 	   double *ikfac,
 	   double *ipower, double *ibase,
 	   double *ibinary_offset,
-	   int *iNTree, int *indPost,
+	   int *iNTree, int *indPost, int* iusepg, int* inumparticles,
 	   int *iprintevery, int *ikeepevery, int *ikeeptrainfits,
 	   int *inumcut, int *iusequants, int *iprintcutoffs,
 	   int *verbose,
@@ -83,6 +86,15 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
 
    bool binary = (*ibinary_offset > -1000.0);
    double binary_offset = *ibinary_offset;
+
+   bool usepg = *iusepg;
+
+   if(*verbose){
+      if(*iusepg)
+         Rprintf("\n\nRunning BART with PG Sampler\n\n");
+      else
+         Rprintf("\n\nRunning BART with CGM Sampler\n\n");
+   }
 
    if(*verbose) {
       if(binary)
@@ -102,6 +114,9 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
       sigma = 1.0;
    else
       sigma = *isigma;
+
+   if(usepg)
+      NumParticle = *inumparticles;
 
    int sigdf = *isigdf;
    double sigquant = *isigquant;
@@ -337,7 +352,12 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
          F77_CALL(dcopy)(&NumObs,Y+1,&inc,YDat1+1,&inc); //copy Y into YDat1
          F77_CALL(daxpy)(&NumObs,&mone,mtotalfit+1,&inc,YDat1+1,&inc); //subtract mtotalfit from YDat1
          F77_CALL(daxpy)(&NumObs,&pone,mtrainFits[i]+1,&inc,YDat1+1,&inc);//add mtrainFits[i]
-	      alpha = Metrop(&theTrees[i],&Done,&step);
+
+         if(usepg){
+            RunSample(&theTrees[i]);
+         }else{
+            alpha = Metrop(&theTrees[i],&Done,&step);
+         }
 
          if(k%keepevery==0)
            theTrees[i]->currentFits(&mu,NumObs,XDat,YDat1,nrowTest,XTest,weights,mfits);
