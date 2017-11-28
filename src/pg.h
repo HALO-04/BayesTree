@@ -45,6 +45,8 @@ public:
 
     bool growable;
 
+    void CopyFrom(Particle* src);
+
 }
 
 void RunSample(Node* thetree);

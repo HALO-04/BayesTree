@@ -32,6 +32,12 @@ void UpdateCachetemp(Cachetemp* cachetemp, double m_bart){
 }
 */
 
+void Particle::CopyFrom(Particle* src){
+    this->growable = src->growable;
+    src->thetree->CopyTree(this->thetree);
+    this->equeue->CopyFrom(&(src->equeue));
+}
+
 void RunSample(Node* thetree){
 
     Particle**  particle_vec = new Particle*[NumParticle + 1];
@@ -41,6 +47,9 @@ void RunSample(Node* thetree){
     Particle* first_particle = *(particle_vec + 1);
     first_particle->thetree->deall();
     thetree->CopyTree(first_particle->thetree);
+
+    //only for compile test
+    first_particle->growable = false;
 
     Node* gnode;
 
@@ -57,17 +66,18 @@ void RunSample(Node* thetree){
         if(!CheckGrow(particle_vec, NumParticle)) break;
     }
 
-    int select_idx = SelectParticle(particle_vec, weight_vec, NumParticle);
+    int select_idx = SelectParticle(particle_vec, log_weight_vec, NumParticle);
     Particle* selected = *(particle_vec + select_idx);
     thetree->deall();
     selected->CopyTree(thetree);
 
-    for(int i = 1; i <= NumParticle; i++) Releaseparticle(particle_vec + i);
+    for(int i = 1; i <= NumParticle; i++) {
+        ReleaseParticle(particle_vec[i]);
+        particle_vec[i] = NULL;
+    }
     delete[] particle_vec;
     delete[] weight_vec;
 }
-
-
 
 
 void InitParticles(Particle** particle_vec, double* weight_vec, int len){
@@ -203,10 +213,10 @@ int PGLowerBound(int *array, int size, double key){
         middle = first + half;
         if(array[middle] < key) {
             first = middle + 1;
-            len = len-half-1;       //在右边子序列中查找
+            len = len-half-1;       //sreach in the rigth part
         }
         else
-            len = half;            //在左边子序列（包含middle）中查找
+            len = half;            //sreach in the left part
     }
     return first + 1;
 }
@@ -234,7 +244,7 @@ void Resample(Particle** particle_vec, double* log_weight_vec, int size){
         new_particle_vec[i] = new_particle;
     }
     for(i = 2; i <= size; i++){
-        delete particle_vec[i];
+        ReleaseParticle(particle_vec[i]);
         particle_vec[i] = new_particle_vec[i];
     }
 
@@ -245,23 +255,12 @@ void Resample(Particle** particle_vec, double* log_weight_vec, int size){
 
 int SelectParticle(Particle** particle_vec, double* log_weight_vec, int size){
     double* weight = new double[size + 1];
-    int i;
-    double max = -1.0 * DBL_MAX;
-    for(i = 1; i <= size; i++){
-        if(max < log_weight_vec[i])
-            max = log_weight_vec[i];
-    }
-    double sum = 0;
-    for(i = 1; i <= size; i++){
-        weight[i] = log_weight_vec[i] - max;
-        weight[i] = std::exp(weight[i]);
-        sum += weight[i];
-    }
+    int i, tmax;
+    Lib::softmax(log_weight_vec, weight, size, &tmax);
     double u = unif_rand();
     int result = size;
     double cumsum = 0;
     for(i = 1; i <= size; i++){
-        weight[i] /= sum;
         cumsum += weight[i];
         if(u <= cumsum){
             result = i;
@@ -273,15 +272,17 @@ int SelectParticle(Particle** particle_vec, double* log_weight_vec, int size){
 
 
 
-void Releaseparticle(Particle* particle){
-    if(!(particle->thetree))
+void ReleaseParticle(Particle* particle){
+    if(!(particle->thetree)){
+        particle->thetree->deall();
         delete particle->thetree;
+    }
     delete particle;
 }
 
 bool CheckGrow(Particle* particle_vec, int size){
     Particle* cur;
-    for(int i = 1; i <= size; i++){
+    for(int i = 2; i <= size; i++){
         cur = *(particle_vec + i);
         if(cur->growable)
             return true;

@@ -17,6 +17,8 @@ Queue::Queue(){
 }
 
 Queue::~Queue(){
+    while(!this->empty())
+        this->pop();
     delete this->front;
 }
 
@@ -51,6 +53,17 @@ void* Queue::pop(){
         void* content = cur->content;
         delete cur;
         return content;
+    }
+}
+
+void Queue::CopyFrom(Queue* src){
+    while(!this->empty())
+        this->pop();
+
+    Cell* src_cell = src->front->after;
+    while(src_cell){
+        this->append(src_cell.contents);
+        src_cell = src_cell->after;
     }
 }
 

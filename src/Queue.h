@@ -13,6 +13,8 @@ public:
     bool empty();
     void append(void *p);
     void* pop();
+
+    void CopyFrom(Queue* src);
 };
 
 #endif

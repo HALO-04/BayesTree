@@ -1,11 +1,10 @@
-Package: BayesTree
-Title: Bayesian Additive Regression Trees
+Package: pgbart
+Title: Bayesian Additive Regression Trees with PG Sampler
 Version: 0.3-1.4
-Date: 2016-2-21
+Date: 2017-2-21
 Author: Hugh Chipman <hugh.chipman@gmail.com>, Robert McCulloch
         <robert.e.mcculloch@gmail.com>
-Description: This is an implementation of BART:Bayesian Additive Regression Trees,
-        by Chipman, George, McCulloch (2010).
+Description: Developed based on the BayesTree package in CRAN, implement interface for PG Sampler
 Maintainer: Robert McCulloch <robert.e.mcculloch@gmail.com>
 Imports: nnet
 License: GPL (>= 2)

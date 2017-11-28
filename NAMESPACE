@@ -1,4 +1,4 @@
-useDynLib(BayesTree)
+useDynLib(pgbart)
 
 export(bart,pdbart,pd2bart,plot.bart,makeind)
 
