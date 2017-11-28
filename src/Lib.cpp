@@ -192,5 +192,28 @@ void Lib::SampleMultinomial(double* probs, int size, int* result, int n){
     }
 }
 
+double Lib::softmax(double* log_weights, double* norm_weights, int size, int* log_max){
+    int i;
+    double sum, log_pd;
+
+    double tmax = -1.0 * DBL_MAX;
+    for(i = 1; i <= size; i++){
+        if(log_weights[i] > tmax)
+            tmax = log_weights[i];
+    }
+    sum = 0;
+    for(i = 1; i <= size; i++){
+        norm_weights[i] = log_weights[i] - tmax;
+        norm_weights[i] = exp(norm_weights[i]);
+        sum += norm_weights[i];
+    }
+    for(i = 1; i <= size; i++)
+        norm_weights[i] /= sum;
+
+    (*log_max) = tmax;
+
+    return sum;
+}
+
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

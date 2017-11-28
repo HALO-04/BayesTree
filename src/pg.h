@@ -9,7 +9,7 @@
 #include "global.h"
 #include "Lib.h"
 
-#include <float.h>
+#include <cfloat>
 #include <Random>
 #include <R.h>
 #include <Rmath.h>
@@ -51,9 +51,11 @@ void RunSample(Node* thetree);
 
 void InitParticles(Particle** particle_vec, int len);
 
-void SetParticlebyTree(Particle* particle, Node* oldtree);
+bool GrowParticle(Particle* p, Node** pgrow_node);
 
-void SetTreebyParticle(Node* dsttree, Particle* particle);
+double UpdateWeight(Node* gnode);
+
+void Resample(Particle** particle_vec, double* log_weight_vec, int size);
 
 void ReleaseParticle(Particle* particle);
 
@@ -63,5 +65,6 @@ int SelectParticle(Particle** particle_vec, double* weight_vec, int size);
 
 int PGLowerBound(int *vec, int len);
 
+bool CheckGrow(Particle* particle_vec, int size);
 
 #endif

@@ -41,7 +41,13 @@ void* Queue::pop(){
         Cell* cur = this->front->after;
 
         this->front->after = cur->after;
-        cur->after->before = this->front;
+
+        if(cur == this->rear){
+            this->front->after = NULL;
+            this->rear = this->front;
+        }else{
+            cur->after->before = this->front;
+        }
         void* content = cur->content;
         delete cur;
         return content;

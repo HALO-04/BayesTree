@@ -32,11 +32,11 @@ void UpdateCachetemp(Cachetemp* cachetemp, double m_bart){
 }
 */
 
-void Runsample(Node* thetree){
+void RunSample(Node* thetree){
 
     Particle**  particle_vec = new Particle*[NumParticle + 1];
     double* log_weight_vec = new double[NumParticle + 1];
-    Initparticles(particle_vec, log_weight_vec, NumParticle);
+    InitParticles(particle_vec, log_weight_vec, NumParticle);
 
     Particle* first_particle = *(particle_vec + 1);
     first_particle->thetree->deall();
@@ -48,13 +48,13 @@ void Runsample(Node* thetree){
         for(int i = 2; i <= len; i++){
             Particle* cur_particle = *(particle_vec + i);
 
-            bool done = Growparticle(cur_particle, &gnode);
+            bool done = GrowParticle(cur_particle, &gnode);
             if(done){
                 log_weight_vec[i] += UpdateWeight(gnode);
             }
         }
         Resample(particle_vec, log_weight_vec, NumParticle);
-        if(!Checkgrow(particle_vec, NumParticle)) break;
+        if(!CheckGrow(particle_vec, NumParticle)) break;
     }
 
     int select_idx = SelectParticle(particle_vec, weight_vec, NumParticle);
@@ -70,7 +70,7 @@ void Runsample(Node* thetree){
 
 
 
-void Initparticles(Particle** particle_vec, double* weight_vec, int len){
+void InitParticles(Particle** particle_vec, double* weight_vec, int len){
     Particle* cur_particle;
     for(int i = 1; i <= len; i++){
         cur_particle = *(particle_vec + i);
@@ -86,10 +86,13 @@ void Initparticles(Particle** particle_vec, double* weight_vec, int len){
 
 }
 
-bool Growparticle(Particle* p, Node** pgrow_node){
+bool GrowParticle(Particle* p, Node** pgrow_node){
     Queue* q = &(p->equeue);
 
-    if(q->empty()) return false;
+    if(q->empty()){
+        p->growable = false;
+        return false;
+    }
 
     Node* grow_node = (Node*)q->pop();
     double psplit = PriParams.base / pow(1.0+Depth(grow_node), PriParams.power);
@@ -165,9 +168,10 @@ bool DrValidSplit(Node* gnode){
             }
         }else{
             // CAT cases
+            Rprintf("\n\nPG Sampler only supports ORD x variable\n\n");
+            exit(1);
+            /*
             int* n_split = new int[ReluNum[tvar] + 1];
-            Rprintf("unused now\n");
-            exit(0);
             while(true){
                 pIvec = (int*)cur_cell->contents;
                 tmp_value = XDat[*pIvec][tvar];
@@ -175,7 +179,7 @@ bool DrValidSplit(Node* gnode){
                 if(cur_cell->End)
                     break;
                 cur_cell = cur_cell->after;
-            }
+            }*/
         }
     }
     delete[] n_dim;
@@ -210,24 +214,13 @@ int PGLowerBound(int *array, int size, double key){
 void Resample(Particle** particle_vec, double* log_weight_vec, int size){
     double* weight_norm = new double[size + 1];
     int* sample_index = new int[size + 1];
-    double tmax = -1.0 * DBL_MAX;
     int i;
-    double sum, log_pd;
-    for(i = 1; i <= size; i++){
-        weight_norm[i] = log_weight_vec[i];
-        if(weight_norm[i] > tmax)
-            tmax = weight_norm[i];
-    }
-    sum = 0;
-    for(i = 1; i <= size; i++){
-        weight_norm[i] -= tmax;
-        weight_norm[i] = std::exp(weight_norm[i]);
-        sum += weight_norm[i];
-    }
-    for(i = 1; i <= size; i++)
-        weight_norm[i] /= sum;
-    log_pd = std::log(sum) + tmax;
-    double log_numP = std::log(size);
+    double tmax, sum_log, log_numP;
+
+    sum_log = Lib::softmax(log_weight_vec, weight_norm, size, &tmax);
+    log_pd = log(sum_log) + tmax;
+    log_numP = log(size);
+
     for(i = 1; i <= size; i++)
         log_weight_vec[i] = log_pd - log_numP;
 
@@ -286,9 +279,9 @@ void Releaseparticle(Particle* particle){
     delete particle;
 }
 
-bool Checkgrow(particle_vec, NumObs){
+bool CheckGrow(Particle* particle_vec, int size){
     Particle* cur;
-    for(int i = 1; i <= NumObs; i++){
+    for(int i = 1; i <= size; i++){
         cur = *(particle_vec + i);
         if(cur->growable)
             return true;
