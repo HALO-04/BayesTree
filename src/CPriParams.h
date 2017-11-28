@@ -1,3 +1,6 @@
+#ifndef H_CPRIPARAMS
+#define H_CPRIPARAMS
+
 class CPriParams
 {
 public:
@@ -6,3 +9,5 @@ public:
 	double base;
 	double power; // p(grow) = base/(1+d)^power
 };
+
+#endif

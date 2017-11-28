@@ -1,3 +1,6 @@
+#ifndef H_RULE_NODE
+#define H_RULE_NODE
+
 #include <stdio.h>
 #include <vector>
 #include <cmath>
@@ -98,3 +101,6 @@ public:
 
 void getVarUsage(Node* node, int depth, int nodeIndex, std::vector<VarUsage>& vu);
 void printVarUsageVector(const std::vector<VarUsage>& vs);
+
+
+#endif

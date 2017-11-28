@@ -192,9 +192,23 @@ void Lib::SampleMultinomial(double* probs, int size, int* result, int n){
     }
 }
 
-double Lib::softmax(double* log_weights, double* norm_weights, int size, int* log_max){
+void Lib::shuffle(int* array, int n){
+    if (n > 1){
+        int i, j;
+        double t;
+        for (i = 0; i < n - 1; i++){
+            j = i + unif_rand() / (1 / (n - i) + 1);
+            t = array[j];
+            array[j] = array[i];
+            array[i] = t;
+        }
+    }
+}
+
+
+double Lib::softmax(double* log_weights, double* norm_weights, int size, double& log_max){
     int i;
-    double sum, log_pd;
+    double sum;
 
     double tmax = -1.0 * DBL_MAX;
     for(i = 1; i <= size; i++){
@@ -210,7 +224,7 @@ double Lib::softmax(double* log_weights, double* norm_weights, int size, int* lo
     for(i = 1; i <= size; i++)
         norm_weights[i] /= sum;
 
-    (*log_max) = tmax;
+    log_max = tmax;
 
     return sum;
 }

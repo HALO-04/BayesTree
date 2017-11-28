@@ -7,9 +7,12 @@
 #include <cstdlib>
 //#include <time.h>
 #include <ctime>
+
 // extern "C" {
 #include <R.h>
 #include <Rmath.h>
+
+#include "Queue.h"
 
 Queue::Queue(){
     this->front = this->rear = new Cell;
@@ -50,7 +53,7 @@ void* Queue::pop(){
         }else{
             cur->after->before = this->front;
         }
-        void* content = cur->content;
+        void* content = cur->contents;
         delete cur;
         return content;
     }
@@ -62,7 +65,7 @@ void Queue::CopyFrom(Queue* src){
 
     Cell* src_cell = src->front->after;
     while(src_cell){
-        this->append(src_cell.contents);
+        this->append(src_cell->contents);
         src_cell = src_cell->after;
     }
 }

@@ -8,9 +8,11 @@
 #include "Likelihood.h"
 #include "global.h"
 #include "Lib.h"
+#include "Rlob.h"
+#include "Prior.h"
 
 #include <cfloat>
-#include <Random>
+//#include <Random>
 #include <R.h>
 #include <Rmath.h>
 
@@ -47,11 +49,11 @@ public:
 
     void CopyFrom(Particle* src);
 
-}
+};
 
 void RunSample(Node* thetree);
 
-void InitParticles(Particle** particle_vec, int len);
+void InitParticles(Particle** particle_vec, double* log_weights, int len);
 
 bool GrowParticle(Particle* p, Node** pgrow_node);
 
@@ -65,8 +67,8 @@ bool DrValidSplit(Node* gnode);
 
 int SelectParticle(Particle** particle_vec, double* weight_vec, int size);
 
-int PGLowerBound(int *vec, int len);
+int PGLowerBound(double* vec, int len, double key);
 
-bool CheckGrow(Particle* particle_vec, int size);
+bool CheckGrow(Particle** particle_vec, int size);
 
 #endif

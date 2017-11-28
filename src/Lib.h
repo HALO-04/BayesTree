@@ -54,9 +54,10 @@ public:
         static int Disc(Vec& p);
 
         static void SampleMultinomial(double* probs, int size, int* result, int n);
-        static double softmax(double* log_weights, double* norm_weights, int size, int* log_max);
+        static void shuffle(int* array, int size);
+        static double softmax(double* log_weights, double* norm_weights, int size, double& log_max);
 
-}
+
 
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -1,6 +1,6 @@
 Package: pgbart
 Title: Bayesian Additive Regression Trees with PG Sampler
-Version: 0.3-1.4
+Version: 0.1
 Date: 2017-2-21
 Author: Hugh Chipman <hugh.chipman@gmail.com>, Robert McCulloch
         <robert.e.mcculloch@gmail.com>

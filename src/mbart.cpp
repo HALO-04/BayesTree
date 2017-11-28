@@ -344,7 +344,7 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
    if(*verbose) Rprintf("Running mcmc loop:\n");
    for (int k=1;k<=ndPost;k++) {
       //if(k%printevery== 0) std::cout << "iteration: " << k << " (of " << ndPost << ")" << std::endl;
-      if(*verbose && (k%·== 0)) Rprintf("iteration: %d (of %d)\n",k,ndPost);
+      if(*verbose && (k%printevery== 0)) Rprintf("iteration: %d (of %d)\n",k,ndPost);
       for(nvs i=1;i<theTrees.size();i++) {
          //for(int j=1;j<=NumObs;j++) {
             //YDat1[j] = Y[j]-mtotalfit[j]+mtrainFits[i][j];
@@ -354,7 +354,7 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
          F77_CALL(daxpy)(&NumObs,&pone,mtrainFits[i]+1,&inc,YDat1+1,&inc);//add mtrainFits[i]
 
          if(usepg){
-            RunSample(&theTrees[i]);
+            RunSample(theTrees[i]);
          }else{
             alpha = Metrop(&theTrees[i],&Done,&step);
          }

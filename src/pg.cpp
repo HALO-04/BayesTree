@@ -35,7 +35,7 @@ void UpdateCachetemp(Cachetemp* cachetemp, double m_bart){
 void Particle::CopyFrom(Particle* src){
     this->growable = src->growable;
     src->thetree->CopyTree(this->thetree);
-    this->equeue->CopyFrom(&(src->equeue));
+    this->equeue.CopyFrom(&(src->equeue));
 }
 
 void RunSample(Node* thetree){
@@ -54,7 +54,7 @@ void RunSample(Node* thetree){
     Node* gnode;
 
     while(true){
-        for(int i = 2; i <= len; i++){
+        for(int i = 2; i <= NumParticle; i++){
             Particle* cur_particle = *(particle_vec + i);
 
             bool done = GrowParticle(cur_particle, &gnode);
@@ -69,14 +69,14 @@ void RunSample(Node* thetree){
     int select_idx = SelectParticle(particle_vec, log_weight_vec, NumParticle);
     Particle* selected = *(particle_vec + select_idx);
     thetree->deall();
-    selected->CopyTree(thetree);
+    selected->thetree->CopyTree(thetree);
 
     for(int i = 1; i <= NumParticle; i++) {
         ReleaseParticle(particle_vec[i]);
         particle_vec[i] = NULL;
     }
     delete[] particle_vec;
-    delete[] weight_vec;
+    delete[] log_weight_vec;
 }
 
 
@@ -108,17 +108,15 @@ bool GrowParticle(Particle* p, Node** pgrow_node){
     double psplit = PriParams.base / pow(1.0+Depth(grow_node), PriParams.power);
 
     bool status;
-    int split_var;
-    int split_idx;
 
     if(!Bern(psplit))
         return false;
-    status = DrValidSplit(grow_node, &split_var, &split_idx);
+    status = DrValidSplit(grow_node);
     if(!status)
         return false;
 
     int LeftEx, RightEx;
-    SpawnChildren(grow_node, &LeftEx, &RightEx);
+    SpawnChildren(grow_node, LeftEx, RightEx);
     (*pgrow_node) = grow_node;
     return true;
 }
@@ -135,7 +133,7 @@ bool DrValidSplit(Node* gnode){
             n_dim[k] = i;
         }
     }
-    std::random_shuffle(n_dim + 1, n_dim + Ngood + 1);
+    Lib::shuffle(n_dim + 1, Ngood);
 
     int tvar, length;
     int first_bound, second_bound;
@@ -144,11 +142,11 @@ bool DrValidSplit(Node* gnode){
     Cell* cur_cell;
     int* pIvec;
 
-    length = grow_node->DataList.length;
+    length = gnode->DataList.length;
 
     for(i = 1; i <= Ngood; i++){
         tvar = n_dim[i];
-        cur_cell = grow_node->DataList.first;
+        cur_cell = gnode->DataList.first;
         // risk of cur_cell = NULL
 
         if(VarType[tvar] == ORD){
@@ -203,7 +201,7 @@ double UpdateWeight(Node* gnode){
 }
 
 
-int PGLowerBound(int *array, int size, double key){
+int PGLowerBound(double *array, int size, double key){
     int first = 0, middle;
     int half, len;
     len = size;
@@ -225,9 +223,9 @@ void Resample(Particle** particle_vec, double* log_weight_vec, int size){
     double* weight_norm = new double[size + 1];
     int* sample_index = new int[size + 1];
     int i;
-    double tmax, sum_log, log_numP;
+    double tmax, sum_log, log_numP, log_pd;
 
-    sum_log = Lib::softmax(log_weight_vec, weight_norm, size, &tmax);
+    sum_log = Lib::softmax(log_weight_vec, weight_norm, size, tmax);
     log_pd = log(sum_log) + tmax;
     log_numP = log(size);
 
@@ -235,7 +233,7 @@ void Resample(Particle** particle_vec, double* log_weight_vec, int size){
         log_weight_vec[i] = log_pd - log_numP;
 
     Lib::SampleMultinomial(weight_norm, size, sample_index, size);
-    Particle** new_particle_vec = new Particel*[size + 1];
+    Particle** new_particle_vec = new Particle*[size + 1];
 
     for(i = 2; i <= size; i++){
         Particle* new_particle = new Particle;
@@ -255,8 +253,9 @@ void Resample(Particle** particle_vec, double* log_weight_vec, int size){
 
 int SelectParticle(Particle** particle_vec, double* log_weight_vec, int size){
     double* weight = new double[size + 1];
-    int i, tmax;
-    Lib::softmax(log_weight_vec, weight, size, &tmax);
+    int i;
+    double tmax;
+    Lib::softmax(log_weight_vec, weight, size, tmax);
     double u = unif_rand();
     int result = size;
     double cumsum = 0;
@@ -280,7 +279,7 @@ void ReleaseParticle(Particle* particle){
     delete particle;
 }
 
-bool CheckGrow(Particle* particle_vec, int size){
+bool CheckGrow(Particle** particle_vec, int size){
     Particle* cur;
     for(int i = 2; i <= size; i++){
         cur = *(particle_vec + i);
