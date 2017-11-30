@@ -20,7 +20,7 @@ Queue::Queue(){
 }
 
 Queue::~Queue(){
-    while(!this->empty())
+    while(!(this->empty()))
         this->pop();
     delete this->front;
 }
@@ -60,7 +60,7 @@ void* Queue::pop(){
 }
 
 void Queue::CopyFrom(Queue* src){
-    while(!this->empty())
+    while(!(this->empty()))
         this->pop();
 
     Cell* src_cell = src->front->after;

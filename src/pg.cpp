@@ -53,7 +53,10 @@ void RunSample(Node* thetree){
 
     Node* gnode;
 
+    int itr = 0;
+
     while(true){
+        itr++;
         for(int i = 2; i <= NumParticle; i++){
             Particle* cur_particle = *(particle_vec + i);
 
@@ -272,7 +275,7 @@ int SelectParticle(Particle** particle_vec, double* log_weight_vec, int size){
 
 
 void ReleaseParticle(Particle* particle){
-    if(!(particle->thetree)){
+    if(particle->thetree){
         particle->thetree->deall();
         delete particle->thetree;
     }
