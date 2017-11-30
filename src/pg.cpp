@@ -83,12 +83,12 @@ void RunSample(Node* thetree){
 void InitParticles(Particle** particle_vec, double* weight_vec, int len){
     Particle* cur_particle;
     for(int i = 1; i <= len; i++){
-        cur_particle = *(particle_vec + i);
+        cur_particle = new Particle;
         cur_particle->thetree = new Node;
         cur_particle->thetree->SetData();
-
         cur_particle->equeue.append(cur_particle->thetree);
         cur_particle->growable = true;
+        particle_vec[i] = cur_particle;
     }
 
     double loglik = LogLNode(cur_particle->thetree);
@@ -127,7 +127,7 @@ bool DrValidSplit(Node* gnode){
     int* n_dim = new int[Ngood + 1];
     int i;
     int k = 0;
-    for(i = 1; i <= NumObs; i++) {
+    for(i = 1; i <= NumX; i++) {
         if(gnode->VarAvail[i]) {
             k++;
             n_dim[k] = i;

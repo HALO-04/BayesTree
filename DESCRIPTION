@@ -1,15 +1,11 @@
 Package: pgbart
+Type: Package
 Title: Bayesian Additive Regression Trees with PG Sampler
-Version: 0.1
-Date: 2017-2-21
-Author: Hugh Chipman <hugh.chipman@gmail.com>, Robert McCulloch
-        <robert.e.mcculloch@gmail.com>
-Description: Developed based on the BayesTree package in CRAN, implement interface for PG Sampler
-Maintainer: Robert McCulloch <robert.e.mcculloch@gmail.com>
-Imports: nnet
+Version: 0.1.0
+Author: H
+Maintainer: MCPRL <none@somewhere.net>
+Description: This package is modified from the BayesTree package
 License: GPL (>= 2)
-URL: http://www.r-project.org, http://www.rob-mcculloch.org
-Packaged: 2016-07-06 08:22:27 UTC; hornik
-Repository: CRAN
-Date/Publication: 2016-07-06 10:26:13
+Encoding: UTF-8
 NeedsCompilation: yes
+Packaged: 2017-11-30 01:02:06 UTC; mcprl
