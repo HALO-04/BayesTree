@@ -49,6 +49,10 @@ public:
 
     void CopyFrom(Particle* src);
 
+    void SetFlag();
+
+    void retrieve();
+
 };
 
 void RunSample(Node* thetree);

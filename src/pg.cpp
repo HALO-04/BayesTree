@@ -34,8 +34,41 @@ void UpdateCachetemp(Cachetemp* cachetemp, double m_bart){
 
 void Particle::CopyFrom(Particle* src){
     this->growable = src->growable;
+    src->SetFlag();
     src->thetree->CopyTree(this->thetree);
-    this->equeue.CopyFrom(&(src->equeue));
+    //this->equeue.CopyFrom(&(src->equeue));
+    this->retrieve();
+}
+
+void Particle::SetFlag(){
+  Node* cur_node = NULL;
+  Cell* cur_cell = this->equeue.front->after;
+  while (cur_cell) {
+    cur_node = (Node*)(cur_cell->contents);
+    cur_node->inqueue = true;
+    cur_cell = cur_cell->after;
+  }
+}
+
+void Particle::retrieve(){
+  while (!(this->equeue.empty())) {
+    this->equeue.pop();
+  }
+  // go through the tree using BFS
+  Queue stqueue;
+  Node* cur_node = NULL;
+  stqueue.append(thetree);
+  while (!(stqueue.empty())) {
+    cur_node = (Node*)stqueue.pop();
+    if (cur_node->inqueue) {
+      this->equeue.append(cur_node);
+      cur_node->inqueue = false;
+    }
+    if (cur_node->LeftC)
+      stqueue.append(cur_node->LeftC);
+    if (cur_node->RightC)
+      stqueue.append(cur_node->RightC);
+  }
 }
 
 void RunSample(Node* thetree){
@@ -49,6 +82,8 @@ void RunSample(Node* thetree){
     thetree->CopyTree(first_particle->thetree);
 
     //only for compile test
+    while (!(first_particle->equeue.empty()))
+      first_particle->equeue.pop();
     first_particle->growable = false;
 
     Node* gnode;
@@ -269,6 +304,7 @@ int SelectParticle(Particle** particle_vec, double* log_weight_vec, int size){
             break;
         }
     }
+    delete[] weight;
     return result;
 }
 

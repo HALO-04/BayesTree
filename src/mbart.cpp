@@ -196,8 +196,9 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
       for(int i=0;i<NumObs;i++) Y[i+1] = iYDat[i];
    }
 
-
-   double** XTest = Lib::almat(nrowTest,NumX);
+   double** XTest = NULL;
+   if(nrowTest)
+      XTest = Lib::almat(nrowTest,NumX);
    tcnt = 0;
    for(int j=1;j<=NumX;j++) {
       for(int i=1;i<=nrowTest;i++) {
@@ -309,7 +310,9 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
    {
       for(int j=1;j<=NTree;j++) mtrainFits[j][i] =0.0;
    }
-   double** mtestFits = Lib::almat(nrowTest,NTree);
+   double** mtestFits = NULL;
+   if(nrowTest)
+      mtestFits = Lib::almat(nrowTest,NTree);
    //double** mtestFits = Lib::almat(NTree,nrowTest);
 
    int Done=0;
@@ -446,9 +449,13 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
    delete [] RuleNum;
    for(int i=1;i<=NumX;i++) delete [] RuleMat[i];
    delete [] RuleMat;
-   for(nvs i=1;i<theTrees.size();i++)
-      theTrees[i]->deall();
+   for(nvs i=1;i<theTrees.size();i++){
+     theTrees[i]->deall();
+     if(theTrees[i])
+       delete theTrees[i];
+   }
 
+   delete [] onev;
    delete [] eps;
    delete [] mtotalfit;
    delete [] mfits[1];

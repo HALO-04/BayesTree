@@ -140,6 +140,8 @@ void Node::CopyTree(Node *copy)
 	copy->Bot = Bot;
 	copy->Nog = Nog;
 
+	copy->inqueue = inqueue;
+
 	for(i=1;i<=NumX;i++) copy->VarAvail[i] = VarAvail[i];
 
 	if(!Bot) {
@@ -170,6 +172,7 @@ void Node::deall()
 		rule.deall();
 		Bot=1;
 		Nog=0;
+		inqueue=false;
 		if(!Top) {
 			Node *brother = Brother(this);
 			if(brother->Bot) (Parent->Nog)=1;
@@ -205,7 +208,9 @@ Node::Node()
 	Bot = 1;
 	Nog = 0;
 
-	growable = 1;
+	inqueue = false;
+	LeftC = NULL;
+	RightC = NULL;
 
 	VarAvail = new int [NumX+1];
 	int i;

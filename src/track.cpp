@@ -39,8 +39,8 @@ void Tracker::CopyFrom(Tracker* src){
 void Tracker::append(bool misgrow, int mvar, int msplit_idx){
 	State* new_state = new State;
 	new_state->isgrow = misgrow;
-	new_state->mvar = mvar;
-	new_state->mvar = msplit_idx;
+	new_state->var = mvar;
+	new_state->split_idx = msplit_idx;
 	new_state->next = NULL;
 
 	this->rear->next = new_state;

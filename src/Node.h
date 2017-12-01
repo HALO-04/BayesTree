@@ -43,7 +43,7 @@ public:
 	int Nog;
 
 	// used in the PG Sampler, whether the node is eligible for expansion
-	int growable;
+	bool inqueue;
 
 	// pointers for tree structure
 	Node *Parent;

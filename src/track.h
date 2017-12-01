@@ -20,11 +20,9 @@ public:
 	Tracker();
 	~Tracker();
 	void append(bool misgrow, int mvar, int msplit_idx);
-	bool reset();
+	void reset();
 	bool gonext();
 	void CopyFrom(Tracker* src);
-
-
-}
+};
 
 #endif

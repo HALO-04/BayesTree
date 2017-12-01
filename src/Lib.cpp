@@ -195,9 +195,9 @@ void Lib::SampleMultinomial(double* probs, int size, int* result, int n){
 void Lib::shuffle(int* array, int n){
     if (n > 1){
         int i, j;
-        double t;
+        int t;
         for (i = 0; i < n - 1; i++){
-            j = i + unif_rand() / (RAND_MAX / (n - i) + 1);
+            j = i + rand() / (RAND_MAX / (n - i) + 1);
             t = array[j];
             array[j] = array[i];
             array[i] = t;
