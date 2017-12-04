@@ -10,6 +10,7 @@
 #include "Lib.h"
 #include "Rlob.h"
 #include "Prior.h"
+#include "Tracker.h"
 
 #include <cfloat>
 //#include <Random>
@@ -45,19 +46,25 @@ public:
     //queue for expansion
     Queue equeue;
 
+    Tracker mtrack;
+
     bool growable;
 
     void CopyFrom(Particle* src);
 
     void SetFlag();
 
+    void ClearFlag(Node* cur);
+
     void retrieve();
 
 };
 
-void RunSample(Node* thetree);
+void RunSample(Node* thetree, Tracker* track);
 
 void InitParticles(Particle** particle_vec, double* log_weights, int len);
+
+bool GrowPG(Particle* first_particle, Node* pgrow_node);
 
 bool GrowParticle(Particle* p, Node** pgrow_node);
 

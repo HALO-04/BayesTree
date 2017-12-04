@@ -21,6 +21,7 @@
 #include "MuS.h"
 #include "Sdev.h"
 #include "pg.h"
+#include "Tracker.h"
 
 extern "C" {
 void F77_NAME(dcopy)(const int *n, const double *dx, const int *incx, double *dy, const int *incy);
@@ -115,9 +116,6 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
    else
       sigma = *isigma;
 
-   if(usepg)
-      NumParticle = *inumparticles;
-
    int sigdf = *isigdf;
    double sigquant = *isigquant;
 
@@ -133,6 +131,12 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
    bool usequants = true;
    if(!(*iusequants)) usequants=false;
    int printcutoffs = *iprintcutoffs;
+
+   Tracker* track_vec = NULL;
+   if(usepg){
+      NumParticle = *inumparticles;
+      track_vec = new Tracker[NTree + 1];
+   }
 
    //note: the meaning of kfac is different for binary y
    //  for numeric y, it is standardized so E(Y) is probably in (-.5,.5)
@@ -357,7 +361,7 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
          F77_CALL(daxpy)(&NumObs,&pone,mtrainFits[i]+1,&inc,YDat1+1,&inc);//add mtrainFits[i]
 
          if(usepg){
-            RunSample(theTrees[i]);
+            RunSample(theTrees[i], track_vec + i);
          }else{
             alpha = Metrop(&theTrees[i],&Done,&step);
          }
@@ -462,6 +466,7 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
    delete [] mfits[2];
    delete [] mfits;
    if(VarType) delete [] VarType;
+   if(usepg) delete[] track_vec;
 
    PutRNGstate();
 }

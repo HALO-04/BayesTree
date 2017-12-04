@@ -38,6 +38,7 @@ void Particle::CopyFrom(Particle* src){
     src->thetree->CopyTree(this->thetree);
     //this->equeue.CopyFrom(&(src->equeue));
     this->retrieve();
+    this->mtrack.CopyFrom(&(src->mtrack));
 }
 
 void Particle::SetFlag(){
@@ -47,6 +48,14 @@ void Particle::SetFlag(){
     cur_node = (Node*)(cur_cell->contents);
     cur_node->inqueue = true;
     cur_cell = cur_cell->after;
+  }
+}
+
+void Particle::ClearFlag(Node* cur) {
+  if(cur){
+    cur->inqueue = false;
+    this->ClearFlag(cur->LeftC);
+    this->ClearFlag(cur->RightC);
   }
 }
 
@@ -71,20 +80,19 @@ void Particle::retrieve(){
   }
 }
 
-void RunSample(Node* thetree){
+void RunSample(Node* thetree, Tracker* track){
 
     Particle**  particle_vec = new Particle*[NumParticle + 1];
     double* log_weight_vec = new double[NumParticle + 1];
     InitParticles(particle_vec, log_weight_vec, NumParticle);
 
     Particle* first_particle = *(particle_vec + 1);
-    first_particle->thetree->deall();
-    thetree->CopyTree(first_particle->thetree);
+    first_particle->mtrack.CopyFrom(track);
 
     //only for compile test
-    while (!(first_particle->equeue.empty()))
+    /*while (!(first_particle->equeue.empty()))
       first_particle->equeue.pop();
-    first_particle->growable = false;
+    first_particle->growable = false;*/
 
     Node* gnode;
 
@@ -92,6 +100,14 @@ void RunSample(Node* thetree){
 
     while(true){
         itr++;
+        if (!(first_particle->equeue.empty())) {
+            gnode = (Node*)(first_particle->equeue.pop());
+            bool done = GrowPG(first_particle, gnode);
+            if (done) {
+                log_weight_vec[1] += UpdateWeight(gnode);
+            }
+        }else
+            first_particle->growable = false;
         for(int i = 2; i <= NumParticle; i++){
             Particle* cur_particle = *(particle_vec + i);
 
@@ -108,6 +124,7 @@ void RunSample(Node* thetree){
     Particle* selected = *(particle_vec + select_idx);
     thetree->deall();
     selected->thetree->CopyTree(thetree);
+    track->CopyFrom(&(selected->mtrack));
 
     for(int i = 1; i <= NumParticle; i++) {
         ReleaseParticle(particle_vec[i]);
@@ -134,6 +151,25 @@ void InitParticles(Particle** particle_vec, double* weight_vec, int len){
 
 }
 
+bool GrowPG(Particle* first_particle, Node* gnode){
+  Tracker* tr = &(first_particle->mtrack);
+  if (!(tr->gonext())) return false;
+
+
+  bool isgrow = tr->cur->isgrow;
+  if (!isgrow) return false;
+  gnode->rule.Var = tr->cur->var;
+  gnode->rule.OrdRule = tr->cur->split_idx;
+
+  int Leftex = 0, RightEx = 0;
+  SpawnChildren(gnode, Leftex, RightEx);
+  first_particle->equeue.append(gnode->LeftC);
+  first_particle->equeue.append(gnode->RightC);
+
+  return true;
+}
+
+
 bool GrowParticle(Particle* p, Node** pgrow_node){
     Queue* q = &(p->equeue);
 
@@ -147,15 +183,26 @@ bool GrowParticle(Particle* p, Node** pgrow_node){
 
     bool status;
 
-    if(!Bern(psplit))
+    if(!Bern(psplit)){
+        p->mtrack.append(false, 0, 0);
         return false;
+    }
+
     status = DrValidSplit(grow_node);
-    if(!status)
+    if(!status){
+        p->mtrack.append(false, 0, 0);
         return false;
+    }
+
 
     int LeftEx, RightEx;
     SpawnChildren(grow_node, LeftEx, RightEx);
     (*pgrow_node) = grow_node;
+
+    p->mtrack.append(true, grow_node->rule.Var, grow_node->rule.OrdRule);
+    q->append(grow_node->LeftC);
+    q->append(grow_node->RightC);
+
     return true;
 }
 
@@ -279,6 +326,10 @@ void Resample(Particle** particle_vec, double* log_weight_vec, int size){
         new_particle->CopyFrom(particle_vec[sample_index[i]]);
         new_particle_vec[i] = new_particle;
     }
+
+    Particle* first_particle = particle_vec[1];
+    first_particle->ClearFlag(first_particle->thetree);
+
     for(i = 2; i <= size; i++){
         ReleaseParticle(particle_vec[i]);
         particle_vec[i] = new_particle_vec[i];
@@ -320,7 +371,7 @@ void ReleaseParticle(Particle* particle){
 
 bool CheckGrow(Particle** particle_vec, int size){
     Particle* cur;
-    for(int i = 2; i <= size; i++){
+    for(int i = 1; i <= size; i++){
         cur = *(particle_vec + i);
         if(cur->growable)
             return true;
