@@ -11,12 +11,12 @@
 
 double LogLNode(Node *n)
 //returns of integrated likelihood of data at node n
-{	
+{
 	int nob;
 	int *divec;
 	double lp=0.0;
-	
-	MakeIntVec(&(n->DataList),&divec,&nob);
+
+	MakeIntVec(n->DataList,&divec,&nob);
 
 	if(nob==0) lp = -10000000.0;
 	else
@@ -43,7 +43,7 @@ double LogLT(Node *branch,Node *top)
 
 	for(i=1;i<=nbot;i++) {
 
-		LP += LogLNode(botvec[i]);	
+		LP += LogLNode(botvec[i]);
 	}
 
 	delete [] botvec;

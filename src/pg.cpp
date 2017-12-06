@@ -227,26 +227,23 @@ bool DrValidSplit(Node* gnode){
     Cell* cur_cell;
     int* pIvec;
 
-    length = gnode->DataList.length;
+    length = gnode->DataList.size();
+    std::vector<int>& gnodedata = gnode->DataList;
 
     for(i = 1; i <= Ngood; i++){
         tvar = n_dim[i];
-        cur_cell = gnode->DataList.first;
+        //cur_cell = gnode->DataList.first;
         // risk of cur_cell = NULL
 
         if(VarType[tvar] == ORD){
             x_min = DBL_MAX;
             x_max = -1.0 * DBL_MAX;
-            while(true){
-                pIvec = (int*)cur_cell->contents;
-                tmp_value = XDat[*pIvec][tvar];
-                if(tmp_value > x_max)
-                    x_max = tmp_value;
-                if(tmp_value < x_min)
-                    x_min = tmp_value;
-                if(cur_cell->End)
-                    break;
-                cur_cell = cur_cell->after;
+            for (int j = 0; j < length; j++) {
+              tmp_value = XDat[gnodedata[j]][tvar];
+              if (tmp_value > x_max)
+                x_max = tmp_value;
+              if (tmp_value < x_min)
+                x_min = tmp_value;
             }
             first_bound = PGLowerBound(RuleMat[tvar] + 1, RuleNum[tvar], x_min);
             second_bound = PGLowerBound(RuleMat[tvar] + 1, RuleNum[tvar], x_max);

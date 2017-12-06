@@ -28,16 +28,16 @@ void MakeBotVec(Node *top,NodeP **botvec,int *NBot)
 	top->GetBotList(&bots);
 	*NBot = bots->length;
 	*botvec = new NodeP [*NBot+1];
-	
-		
+
+
 	Cell *cell = bots->first;
 	(*botvec)[1]=(Node *)cell->contents;
-	
+
 	for(i=2;i<=(*NBot);i++) {
 		cell = cell->after;
-		(*botvec)[i]=(Node *)cell->contents;	
+		(*botvec)[i]=(Node *)cell->contents;
 	}
-	
+
 	bots->deall();
 	delete bots;
 }
@@ -52,14 +52,14 @@ void MakeNogVec(Node *top,NodeP **nogvec,int *NNog)
 	top->GetNogList(&bots);
 	*NNog = bots->length;
 	*nogvec = new NodeP [*NNog+1];
-	
+
 	if (*NNog){
 	Cell *cell = bots->first;
 	(*nogvec)[1]=(Node *)cell->contents;
-	
+
 	for(i=2;i<=(*NNog);i++) {
 		cell = cell->after;
-		(*nogvec)[i]=(Node *)cell->contents;	
+		(*nogvec)[i]=(Node *)cell->contents;
 	}
 	}
 	bots->deall();
@@ -67,7 +67,7 @@ void MakeNogVec(Node *top,NodeP **nogvec,int *NNog)
 }
 
 void MakeSwapVec(Node *top,NodeP **swapvec,int *Nswap)
-// 
+//
 {
 
 	int i;
@@ -76,14 +76,14 @@ void MakeSwapVec(Node *top,NodeP **swapvec,int *Nswap)
 	top->GetSwapsList(&swaps);
 	*Nswap = swaps->length;
 	*swapvec = new NodeP [*Nswap+1];
-	
+
 	if (*Nswap){
 	Cell *cell = swaps->first;
 	(*swapvec)[1]=(Node *)cell->contents;
-	
+
 	for(i=2;i<=(*Nswap);i++) {
 		cell = cell->after;
-		(*swapvec)[i]=(Node *)cell->contents;	
+		(*swapvec)[i]=(Node *)cell->contents;
 	}
 	}
 	swaps->deall();
@@ -100,14 +100,14 @@ void MakeNotBotVec(Node *top,NodeP **notbotvec,int *Nnotbot)
 	top->GetNotBotList(&bots);
 	*Nnotbot = bots->length;
 	*notbotvec = new NodeP [*Nnotbot+1];
-	
+
 	if (*Nnotbot){
 	Cell *cell = bots->first;
 	(*notbotvec)[1]=(Node *)cell->contents;
-	
+
 	for(i=2;i<=(*Nnotbot);i++) {
 		cell = cell->after;
-		(*notbotvec)[i]=(Node *)cell->contents;	
+		(*notbotvec)[i]=(Node *)cell->contents;
 	}
 	}
 	bots->deall();
@@ -115,20 +115,20 @@ void MakeNotBotVec(Node *top,NodeP **notbotvec,int *Nnotbot)
 }
 
 
-void MakeIntVec(List *intlist, int **ivec, int *n)
+void MakeIntVec(std::vector<int>& intlist, int **ivec, int *n)
 //allocate and define vec of integers corresponding to list of int pointers
 {
 	int i;
 
-	*n = intlist->length;
+	*n = intlist.size();
 	*ivec = new int [*n + 1];
 
-	Cell *cell = intlist->first;
-	if(*n>0) (*ivec)[1]=*((int *)(cell->contents));
-	
+	//Cell *cell = intlist->first;
+	if(*n>0) (*ivec)[1] = intlist[0];
+
 	for(i=2;i<=(*n);i++) {
-		cell = cell->after;
-		(*ivec)[i]=*((int *)(cell->contents));
+		//cell = cell->after;
+		(*ivec)[i] = intlist[i - 1];
 	}
 }
 
@@ -146,11 +146,11 @@ void GetDataInd(Node *top,int *ind)
 	Node *nn;
 
 	for(i=1;i<=NumObs;i++) {
-	
+
 		top->FindNode(XDat[i],&nn);
 		for(j=1;nn!=botvec[j];j++);
 		ind[i] = j;
-		
+
 	}
 
 	delete [] botvec;
@@ -169,11 +169,11 @@ void GetDataInd(Node *top,int *ind, int NumObsPred, double** data)
 	Node *nn;
 
 	for(i=1;i<=NumObsPred;i++) {
-	
+
 		top->FindNode(data[i],&nn);
 		for(j=1;nn!=botvec[j];j++);
 		ind[i] = j;
-		
+
 	}
 
 	delete [] botvec;
@@ -223,8 +223,8 @@ Rule *GetRulePointer(int index, int curindex, int depth, int curdepth, Node* n)
 
 	// if you are a bottom node then you have no rule so return 0 for the pointer value
 	if(n->Bot) return 0;
-	
-	
+
+
 	// if you are at the right node return the address of the rule
 	if(index==curindex)
 	{
@@ -272,7 +272,7 @@ int RulesDifferent(Rule *r1,Rule *r2)
 	}
 }
 
-		
+
 int ShannonBanksMetric(Node *top1,Node *top2)
 {
 	int d1 = top1->DepthBelow();
@@ -336,7 +336,7 @@ int MisCMetric(Node* top1,Node* top2)
 		if(f1[i]>.5) r1=1;
 		if(f2[i]>.5) r2=1;
 		if(!(r1==r2)) met += 1;
-		
+
 	}
 
 	delete [] f1;
@@ -383,27 +383,27 @@ int AndrewsMetric(Node *top1,Node *top2)
 
 void AddDatChildren(Node *n)
 {
-	if(!(n->rule).Var) 
+	if(!(n->rule).Var)
 		Rprintf("error in AddDatChildren: rule not set\n");
-	if(((n->LeftC)->DataList.length!=0) || ((n->RightC)->DataList.length!=0))
+	if(((n->LeftC)->DataList.size()!=0) || ((n->RightC)->DataList.size()!=0))
 		Rprintf("error in AddDatChildren: data already set\n");
 
 	int *divec;
 	int nob;
-	MakeIntVec(&(n->DataList),&divec,&nob);
+	MakeIntVec(n->DataList,&divec,&nob);
 
 	int i;
 	for(i=1;i<=nob;i++) {
 		if((n->rule).Right(XDat[divec[i]])) {
 			(n->RightC)->SetData(divec[i]);
-			
+
 		}
 		else {
 			(n->LeftC)->SetData(divec[i]);
 		}
 	}
-		
-	
+
+
 	delete [] divec;
 }
 
@@ -412,11 +412,11 @@ void FixDataBelow(Node *cnode)
 	int *divec;
 	int nobs;
 	int i;
-	
+
 	(cnode->LeftC)->ClearData();
 	(cnode->RightC)->ClearData();
 
-		MakeIntVec(&(cnode->DataList), &divec, &nobs);
+		MakeIntVec(cnode->DataList, &divec, &nobs);
 	for(i=1;i<=nobs;i++) {
 		if ((cnode->rule).Right(XDat[divec[i]])) {
 			(cnode->RightC)->SetData(divec[i]);
@@ -470,7 +470,7 @@ void UpDateCatVarAvail(Node *n, int VarI, int *cats)
 	}
 
 	if(!(n->Bot)) {
-	
+
 		int *catsl = new int [RN+1];
 		int *catsr = new int [RN+1];
 		for(i=1;i<=RN;i++) {
@@ -532,9 +532,9 @@ void RestrictSize(Node **n,int min)
 
 		RestrictSize(&((*n)->RightC),min);
 
-	} 
+	}
 
-	
+
 
 		Rprintf("%d\n",(*n)->DataList.length);
 
@@ -570,7 +570,7 @@ double Metrop(Node **top,int *Done,int *step)
 		} else {
 			*step = DEATH;
 		}
-	} else if(u<pBD+pSwap) { 
+	} else if(u<pBD+pSwap) {
 		alpha = SwapRule(*top,Done);
 		*step=SWAP;
 	} else {
@@ -579,7 +579,7 @@ double Metrop(Node **top,int *Done,int *step)
 	}
 
 	//disable backout
-	
+
 	// back out if any nodes of the resultant tree have less than 5 obs---------------------------
 	/*
 	NodeP *botvec;
@@ -588,7 +588,7 @@ double Metrop(Node **top,int *Done,int *step)
 	int i;
 	int minN = NumObs;
 	for (i=1;i<=NBot;i++){
-		if ((((botvec[i])->DataList).length) < minN) 
+		if ((((botvec[i])->DataList).length) < minN)
 			minN = (((botvec[i])->DataList).length);
 	}
 	delete [] botvec;
@@ -604,8 +604,8 @@ double Metrop(Node **top,int *Done,int *step)
 	}
 	*/
 	//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	
-	
+
+
 	return alpha;
 }
 void countVarUsage(std::vector<Node*>& trees, std::vector<int>& cnt)
@@ -615,6 +615,6 @@ void countVarUsage(std::vector<Node*>& trees, std::vector<int>& cnt)
    for(std::vector<Node*>::size_type i=1;i<trees.size();i++) {
       vu.clear();
       getVarUsage(trees[i],0,0,vu);
-      for(std::vector<VarUsage>::size_type j=0;j<vu.size();j++) cnt[vu[j].varIndex]++; 
-   }   
+      for(std::vector<VarUsage>::size_type j=0;j<vu.size();j++) cnt[vu[j].varIndex]++;
+   }
 }

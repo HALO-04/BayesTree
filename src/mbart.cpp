@@ -345,10 +345,13 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
    double *onev = new double[NTree+1];
    for(int k=1;k<=NTree;k++) onev[k]=1.0;
 
+   srand((unsigned int)time(NULL));
+
    time_t tp;
    int time1 = time(&tp);
 
    if(*verbose) Rprintf("Running mcmc loop:\n");
+
    for (int k=1;k<=ndPost;k++) {
       //if(k%printevery== 0) std::cout << "iteration: " << k << " (of " << ndPost << ")" << std::endl;
       if(*verbose && (k%printevery== 0)) Rprintf("iteration: %d (of %d)\n",k,ndPost);

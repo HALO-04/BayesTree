@@ -56,7 +56,8 @@ public:
 
 
 	//list of observations corresponding to node
-	List DataList;
+	//List DataList;
+	std::vector<int> DataList;
 
 	//functions
 	int NumBotNodes();  // returns number of bottom nodes

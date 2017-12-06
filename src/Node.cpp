@@ -140,6 +140,8 @@ void Node::CopyTree(Node *copy)
 	copy->Bot = Bot;
 	copy->Nog = Nog;
 
+	copy->DataList.assign(DataList.begin(), DataList.end());
+
 	copy->inqueue = inqueue;
 
 	for(i=1;i<=NumX;i++) copy->VarAvail[i] = VarAvail[i];
@@ -156,9 +158,9 @@ void Node::CopyTree(Node *copy)
 		Left->Parent = copy;
 		Right->Parent = copy;
 	}
-	if (Top) {
-		copy->SetData();
-	}
+	//if (Top) {
+	//	copy->SetData();
+	//}
 }
 
 
@@ -182,7 +184,7 @@ void Node::deall()
 	if(Top) {
 		Bot=1;
 		Nog=0;
-		if(DataList.length) DataList.deall();
+		if(DataList.size() > 0) DataList.clear();
 		rule.deall();
 		int i;
 		for (i=1;i<=NumX;i++)
@@ -195,7 +197,7 @@ void Node::deall()
 
 void Node::ClearData()
 {
-	DataList.deall();
+	DataList.clear();
 	if(!Bot) {
 		LeftC->ClearData();
 		RightC->ClearData();
@@ -212,6 +214,9 @@ Node::Node()
 	LeftC = NULL;
 	RightC = NULL;
 
+	DataList.resize(NumObs);
+	DataList.clear();
+
 	VarAvail = new int [NumX+1];
 	int i;
 	for(i=1;i<=NumX;i++) VarAvail[i]=1;
@@ -222,7 +227,7 @@ Node::~Node()
 
 
 	delete [] VarAvail;
-	if(DataList.length) DataList.deall();
+	//if(DataList.length) DataList.deall();
 
 
 }
@@ -616,16 +621,17 @@ void Node::currentFits(MuS* mod,int nTrain,double** xTrain,double* yTrain,int nT
 
 		for(int i=1;i<=nbot;i++) { // loop over bottom nodes-------------
             //data is list of indices of train obs in the bottom node
-            List& data = ((Node *)botvec[i])->DataList;
-            nobTrain = data.length;
+            std::vector<int>& data = ((Node *)botvec[i])->DataList;
+            nobTrain = data.size();
             itr = new int[nobTrain+1]; //copy list contents to itr
 
-            Cell *cell = data.first;
-            if(nobTrain>0) itr[1]=*((int *)(cell->contents));
+            //Cell *cell = data.first;
+            //if(nobTrain>0) itr[1]=*((int *)(cell->contents));
+            if (nobTrain > 0) itr[1] = data[0];
             ybar = yTrain[itr[1]];
             for(int j=2;j<=nobTrain;j++) {
-               cell = cell->after;
-               itr[j]=*((int *)(cell->contents));
+               //cell = cell->after;
+               itr[j] = data[j - 1];
                ybar += yTrain[itr[j]];
             }
             ybar /= nobTrain;
@@ -692,37 +698,7 @@ void Node::SetData()
 void Node::SetData(int i)
 {
 
-
-	Cell *cell;
-
-	cell=new Cell;
-	cell->contents= (&Ivec[i]);
-	cell->End=1;
-
-
-
-	if(DataList.length==0) {
-
-		DataList.first=cell;
-		DataList.last=cell;
-
-		cell->Beg=1;
-
-
-
-	} else {
-
-
-			DataList.last->End=0;
-			DataList.last->after=cell;
-			cell->before=DataList.last;
-			DataList.last=cell;
-
-			cell->Beg=0;
-
-	}
-
-	DataList.length +=1;
+  DataList.push_back(i);
 
 	if (!Bot){
 

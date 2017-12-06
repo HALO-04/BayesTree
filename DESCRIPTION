@@ -1,7 +1,7 @@
 Package: pgbart
 Type: Package
 Title: Bayesian Additive Regression Trees with PG Sampler
-Version: 0.1.0
+Version: 1.1.0
 Author: H
 Maintainer: MCPRL <none@somewhere.net>
 Description: This package is modified from the BayesTree package
