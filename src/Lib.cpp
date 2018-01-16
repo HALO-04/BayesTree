@@ -172,4 +172,58 @@ int Lib::Disc(Vec& p)
     }
     return i;
 }
+
+void Lib::SampleMultinomial(double* probs, int size, int* result, int n){
+    int i, k;
+    double u, cumsum;
+    result[1] = 1;
+
+    for(k = 2; k <= n; k++){
+        result[k] = size;
+        u = unif_rand();
+        cumsum = 0;
+        for(i = 1; i <= size; i++){
+            cumsum += probs[i];
+            if(u <= cumsum){
+                result[k] = i;
+                break;
+            }
+        }
+    }
+}
+
+void Lib::shuffle(int* array, int n){
+    for(int i = n - 1; i > 0; i--){
+        int j = rand() % (i + 1);
+        int temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+}
+
+
+double Lib::softmax(double* log_weights, double* norm_weights, int size, double& log_max){
+    int i;
+    double sum;
+
+    double tmax = -1.0 * DBL_MAX;
+    for(i = 1; i <= size; i++){
+        if(log_weights[i] > tmax)
+            tmax = log_weights[i];
+    }
+    sum = 0;
+    for(i = 1; i <= size; i++){
+        norm_weights[i] = log_weights[i] - tmax;
+        norm_weights[i] = exp(norm_weights[i]);
+        sum += norm_weights[i];
+    }
+    for(i = 1; i <= size; i++)
+        norm_weights[i] /= sum;
+
+    log_max = tmax;
+
+    return sum;
+}
+
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

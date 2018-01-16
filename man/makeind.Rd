@@ -34,9 +34,7 @@ makeind(
 Hugh Chipman: \email{hugh.chipman@acadiau.ca}\cr
 Robert McCulloch: \email{robert.mcculloch@chicagogsb.edu}.
 }
-\seealso{
-\code{\link{bart}}
-}
+
 \examples{
 x1 = 1:10
 x2 = as.factor(c(rep(1,5),rep(2,5)))

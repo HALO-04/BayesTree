@@ -59,7 +59,7 @@ void List::deall()
 		}
 		length=0;
 	}
-	
+
 }
 
 
@@ -69,7 +69,7 @@ void CombineLists(List *list1,List *list2, List **list)
 
 	n1=(*list1).length;
 	n2=(*list2).length;
-	
+
 	if(n1==0) {
 		(*list)=list2;
 		delete list1;
@@ -80,24 +80,24 @@ void CombineLists(List *list1,List *list2, List **list)
 		delete list2;
 		return;
 	}
-	if((n1>0) && (n2>0)) {			
-	
+	if((n1>0) && (n2>0)) {
+
 		(*list)=new List;
-	
-	
+
+
 		(**list).length=n1+n2;
 		(**list).first=(*list1).first;
 		(**list).last=(*list2).last;
-	
+
 		((*list1).last)->after=(*list2).first;
 		((*list1).last)->End=0;
 		((*list2).first)->before=(*list1).last;
 		((*list2).first)->Beg=0;
-	
+
 		delete list1;
 		delete list2;
 	}
-	
+
 }
 
 
@@ -107,21 +107,21 @@ void PrintList(List *list)
 	Cell *cell;
 	int n=(*list).length;
 	Rprintf("\n the length of the list is %d\n",n);
-	
+
 	if(n>0) {
 	Rprintf("the pointer contents and status values are:\n");
 	cell =(*list).first;
 	Rprintf(" %p %d %d\n",cell->contents,cell->Beg,cell->End);
-	
+
 	for(int i=1;i<n;i++) {
 		cell=(*cell).after;
 		Rprintf(" %p %d %d\n",cell->contents,cell->Beg,cell->End);
-		
+
 	}
 	//std::cout << "\n";
         Rprintf("\n");
 	}
-}	
+}
 
 void DelCell(List *list,Cell *cell)
 {
@@ -235,23 +235,23 @@ void ListToVector(List *list,voidP **p,int *n)
 
 	int i;
 
-	
+
 	*n = list->length;
 	*p = new voidP [*n+1];
 
 	if((*n)) {
-	
-		
+
+
 		Cell *cell = list->first;
 		(*p)[1]=cell->contents;
-	
+
 		for(i=2;i<=(*n);i++) {
 			cell = cell->after;
-			(*p)[i]=cell->contents;	
+			(*p)[i]=cell->contents;
 		}
 	}
-	
-	
+
+
 }
 
 

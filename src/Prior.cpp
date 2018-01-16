@@ -28,7 +28,7 @@ void GetSplitInterval(int *LeftI, int *RightI, Node *curr,int VarI)
 // get interval of available splits for ordered variable
 // curr is node, VarI is index of variables, LeftI and RightI give the interval (indices)
 {
-	
+
 	// make sure the variable is ordered
 	if(!(VarType[VarI]==ORD)) {
 		Rprintf("error in GetSplitInterval: variable not ordered\n");
@@ -39,7 +39,7 @@ void GetSplitInterval(int *LeftI, int *RightI, Node *curr,int VarI)
 	*LeftI = 1; // right value if you top out
 	*RightI = RuleNum[VarI]; // right value if you top out
 	int Right;
-	
+
 	// move up tree until you have topped out or found both left and right
 	while((!(curr->Top)) && (!(Lfound && Rfound))) {
 
@@ -50,7 +50,7 @@ void GetSplitInterval(int *LeftI, int *RightI, Node *curr,int VarI)
 		}
 
 		curr = curr->Parent;
-		
+
 		//if you find the variable set the left or right
 		if((curr->rule).Var==VarI) {
 			if(Right && (!Lfound)) {
@@ -74,7 +74,7 @@ void GetSetCats(Node *curr,int VarI, int *cats)
 	Node *dad;
 
 	if(!(VarType[VarI]==CAT)) Rprintf("error in GetSetCats: not a CAT variable\n");
-	
+
 
 	int NR = RuleNum[VarI];
 	for(i=1;i<=NR;i++) cats[i]=1;
@@ -105,10 +105,10 @@ double PGrow(Node *n)
 
 	alpha=PriParams.base;
 	beta=PriParams.power;
-	
+
 	int Ngood = SumGoodVar(n);
 	if(Ngood) {
-		int nobs = (n->DataList).length;
+		int nobs = (n->DataList).size();
 		if(nobs<5) {
 			return .001*alpha/(pow(1.0+Depth(n),beta));
 		} else {
@@ -145,7 +145,7 @@ int SpawnChildren(Node *n,int LeftEx,int RightEx)
 	(n->LeftC)->Bot=1;
 	(n->LeftC)->Nog=0;
 	(n->LeftC)->Parent = n;
-	
+
 	for(i=1;i<=NumX;i++) ((n->LeftC)->VarAvail)[i] = (n->VarAvail)[i];
 	if(LeftEx) ((n->LeftC)->VarAvail)[(n->rule).Var]=0;
 
@@ -189,21 +189,21 @@ int DrPriVar(Node *n)
 	return GetSkipBadInd(NumX,n->VarAvail,VarI);
 
 
-	
+
 }
 
 void DrPriRule(int VarI,Node *GNode,int *LeftEx,int *RightEx)
 //
 {
 
-	
+
 	*LeftEx = 0;
 	*RightEx = 0;
 
 	int i;
 
 	int LeftI,RightI;
-	
+
 	double u;
 
 	int numsplit;
@@ -215,7 +215,7 @@ void DrPriRule(int VarI,Node *GNode,int *LeftEx,int *RightEx)
 	int NR;
 	int selind;
 	int NRcats;
-	
+
 
 	if(VarType[VarI]==CAT) {
 		NR = RuleNum[VarI];
@@ -227,7 +227,7 @@ void DrPriRule(int VarI,Node *GNode,int *LeftEx,int *RightEx)
 		if(Ncat<2) {
 			Rprintf("error in DrPriRule: less than 2 values left for cat var\n");
 			delete [] cats;
-		
+
 		}
 
 
@@ -236,7 +236,7 @@ void DrPriRule(int VarI,Node *GNode,int *LeftEx,int *RightEx)
 		//int index =(int)(ran1(&idum)*(pow(2.0,Ncat-1)-1));
 		int index =(int)(unif_rand()*(pow(2.0,Ncat-1)-1));
 		indtd(Ncat-1,index,(sel+1));
-		
+
 		selind=0;
 		for(i=1;i<=NR;i++) {
 			if(cats[i]) {
@@ -248,7 +248,7 @@ void DrPriRule(int VarI,Node *GNode,int *LeftEx,int *RightEx)
 		}
 
 
-	
+
 
 		NRcats=0;
 		for(i=1;i<=Ncat;i++) NRcats += sel[i];
@@ -266,9 +266,9 @@ void DrPriRule(int VarI,Node *GNode,int *LeftEx,int *RightEx)
 		numsplit = RightI-LeftI+1;
 		if(numsplit ==0) {
 			Rprintf("error in DrPriRule: no splits left for ordered var\n");
-			
+
 		}
-		
+
 		//u = ran1(&idum);
 		u = unif_rand();
 		(GNode->rule).OrdRule = LeftI +((int)floor(u*numsplit));
@@ -315,7 +315,7 @@ void DrawPrior(Node *n)
 			SpawnChildren(n,LeftEx,RightEx); //create children
 			DrawPrior(n->LeftC);
 			DrawPrior(n->RightC);
-		} 
+		}
 	}
 }
 

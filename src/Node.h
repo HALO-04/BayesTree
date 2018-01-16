@@ -1,3 +1,6 @@
+#ifndef H_RULE_NODE
+#define H_RULE_NODE
+
 #include <stdio.h>
 #include <vector>
 #include <cmath>
@@ -33,12 +36,16 @@ public:
 	Node();
 	~Node();
 
-	// next three are indicators for 
+	// next three are indicators for
 	// whether the node is a top, bottom, or nogrand
 	int Top;
 	int Bot;
 	int Nog;
-	
+
+	// used in the PG Sampler, whether the node is eligible for expansion
+	bool inqueue;
+	double node_mu;
+
 	// pointers for tree structure
 	Node *Parent;
 	Node *LeftC;
@@ -48,9 +55,10 @@ public:
 	Rule rule;
 	int *VarAvail; // ith is 1 if variable i has rules left, 0 else
 
-	
+
 	//list of observations corresponding to node
-	List DataList;
+	//List DataList;
+	std::vector<int> DataList;
 
 	//functions
 	int NumBotNodes();  // returns number of bottom nodes
@@ -95,3 +103,6 @@ public:
 
 void getVarUsage(Node* node, int depth, int nodeIndex, std::vector<VarUsage>& vu);
 void printVarUsageVector(const std::vector<VarUsage>& vs);
+
+
+#endif
