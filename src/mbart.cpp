@@ -20,8 +20,6 @@
 #include "Prior.h"
 #include "MuS.h"
 #include "Sdev.h"
-#include "pg.h"
-#include "Tracker.h"
 
 extern "C" {
 void F77_NAME(dcopy)(const int *n, const double *dx, const int *incx, double *dy, const int *incy);
@@ -51,13 +49,10 @@ double **XDatR;	// x data, used in regression model
 int NumXR;		// number of columns in XDatR
 double* weights;
 
-int NumParticle; // number of particles used in PG sampler
-
 int *RuleNum; // integer vec of length NumX, ith is number of split
 				// points for ORD var and number of CATs for CAT var
 double **RuleMat; // ragged array, ith row has RuleNum values, split values
 					// for ORD, cat values for CAT
-//Cachetemp cachetemp; // used to compute weights in PG Sampler
 
 int *Ivec;
 
@@ -77,7 +72,7 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
 	   double *ikfac,
 	   double *ipower, double *ibase,
 	   double *ibinary_offset,
-	   int *iNTree, int *indPost, int* iusepg, int* inumparticles,
+	   int *iNTree, int *indPost, 
 	   int *iprintevery, int *ikeepevery, int *ikeeptrainfits,
 	   int *inumcut, int *iusequants, int *iprintcutoffs,
 	   int *verbose,
@@ -87,15 +82,6 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
 
    bool binary = (*ibinary_offset > -1000.0);
    double binary_offset = *ibinary_offset;
-
-   bool usepg = *iusepg;
-
-   if(*verbose){
-      if(*iusepg)
-         Rprintf("\n\nRunning BART with PG Sampler\n\n");
-      else
-         Rprintf("\n\nRunning BART with CGM Sampler\n\n");
-   }
 
    if(*verbose) {
       if(binary)
@@ -119,11 +105,11 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
    int sigdf = *isigdf;
    double sigquant = *isigquant;
 
-   double kfac = *ikfac;
+   double kfac = *ikfac;	
 
    int NTree = *iNTree;
    int ndPost = *indPost;
-
+   
    int printevery= *iprintevery;
    int keepevery = *ikeepevery;
    bool keeptrainfits = true;
@@ -132,20 +118,14 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
    if(!(*iusequants)) usequants=false;
    int printcutoffs = *iprintcutoffs;
 
-   Tracker* track_vec = NULL;
-   if(usepg){
-      NumParticle = *inumparticles;
-      track_vec = new Tracker[NTree + 1];
-   }
-
-   //note: the meaning of kfac is different for binary y
+   //note: the meaning of kfac is different for binary y 
    //  for numeric y, it is standardized so E(Y) is probably in (-.5,.5)
    //  for binary y, it is in (-3,3)
    double musig;
    if(binary)
-      musig = 3.0/(kfac*sqrt((double)NTree));
+      musig = 3.0/(kfac*sqrt((double)NTree)); 
    else
-      musig = .5/(kfac*sqrt((double)NTree));
+      musig = .5/(kfac*sqrt((double)NTree)); 
 
    PriParams.base = *ibase;
    PriParams.power = *ipower;
@@ -187,7 +167,7 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
    int tcnt = 0;
    for(int j=1;j<=NumX;j++) {
       for(int i=1;i<=NumObs;i++) {
-         XDat[i][j] = *(iXDat+tcnt);
+         XDat[i][j] = *(iXDat+tcnt); 
               tcnt++;
       }
    }
@@ -200,16 +180,15 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
       for(int i=0;i<NumObs;i++) Y[i+1] = iYDat[i];
    }
 
-   double** XTest = NULL;
-   if(nrowTest)
-      XTest = Lib::almat(nrowTest,NumX);
+
+   double** XTest = Lib::almat(nrowTest,NumX);
    tcnt = 0;
    for(int j=1;j<=NumX;j++) {
       for(int i=1;i<=nrowTest;i++) {
          XTest[i][j] = *(iXTest+tcnt);
          tcnt++;
       }
-   }
+   } 
 
    VarType = new int [NumX+1];
    for(int i=1;i<=NumX;i++) VarType[i]=ORD;
@@ -235,7 +214,7 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
             cfac = cnq/cnc;
             coffset = (cfac/2);
          }
-         RuleNum[i] = cnc;
+         RuleNum[i] = cnc; 
          RuleMat[i] = new double[cnc+1];
          for(int j=0;j<cnc;j++) {
             cind = std::min(j*cfac+coffset,cnq-2);
@@ -314,9 +293,7 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
    {
       for(int j=1;j<=NTree;j++) mtrainFits[j][i] =0.0;
    }
-   double** mtestFits = NULL;
-   if(nrowTest)
-      mtestFits = Lib::almat(nrowTest,NTree);
+   double** mtestFits = Lib::almat(nrowTest,NTree);
    //double** mtestFits = Lib::almat(NTree,nrowTest);
 
    int Done=0;
@@ -344,14 +321,11 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
    double pone=1.0;
    double *onev = new double[NTree+1];
    for(int k=1;k<=NTree;k++) onev[k]=1.0;
-
-   srand((unsigned int)time(NULL));
-
+   
    time_t tp;
    int time1 = time(&tp);
 
    if(*verbose) Rprintf("Running mcmc loop:\n");
-
    for (int k=1;k<=ndPost;k++) {
       //if(k%printevery== 0) std::cout << "iteration: " << k << " (of " << ndPost << ")" << std::endl;
       if(*verbose && (k%printevery== 0)) Rprintf("iteration: %d (of %d)\n",k,ndPost);
@@ -362,17 +336,12 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
          F77_CALL(dcopy)(&NumObs,Y+1,&inc,YDat1+1,&inc); //copy Y into YDat1
          F77_CALL(daxpy)(&NumObs,&mone,mtotalfit+1,&inc,YDat1+1,&inc); //subtract mtotalfit from YDat1
          F77_CALL(daxpy)(&NumObs,&pone,mtrainFits[i]+1,&inc,YDat1+1,&inc);//add mtrainFits[i]
+	 alpha =  Metrop(&theTrees[i],&Done,&step);
 
-         if(usepg){
-            RunSample(theTrees[i], track_vec + i);
-         }else{
-            alpha = Metrop(&theTrees[i],&Done,&step);
-         }
-
-         if(k%keepevery==0)
-           theTrees[i]->currentFits(&mu,NumObs,XDat,YDat1,nrowTest,XTest,weights,mfits);
-         else
-           theTrees[i]->currentFits(&mu,NumObs,XDat,YDat1,0,XTest,weights,mfits);
+	 if(k%keepevery==0)
+            theTrees[i]->currentFits(&mu,NumObs,XDat,YDat1,nrowTest,XTest,weights,mfits);
+	 else
+            theTrees[i]->currentFits(&mu,NumObs,XDat,YDat1,0,XTest,weights,mfits);
 
 	 //for(int j=1;j<=NumObs;j++) mtotalfit[j] += (mfits[1][j]-mtrainFits[i][j]);
          F77_CALL(daxpy)(&NumObs,&mone,mtrainFits[i]+1,&inc,mtotalfit+1,&inc);//sub old fits
@@ -382,7 +351,7 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
          for(int j=1;j<=nrowTest;j++) mtestFits[j][i] = mfits[2][j];
          //F77_CALL(dcopy)(&NumObs,mfits[2]+1,&inc,mtestFits[i]+1,&inc);
       }
-      //for(int m=1;m<=NumObs;m++)
+      //for(int m=1;m<=NumObs;m++) 
       //   eps[m]=YDat[m][1]-mtotalfit[m];
       if(!binary) {
          F77_CALL(dcopy)(&NumObs,Y+1,&inc,eps+1,&inc);
@@ -394,14 +363,14 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
       if(binary) {
          double u,Z;
          for(int i=1;i<=NumObs;i++) {
-	         u = unif_rand();
-	         if(YDat[i][1] > 0) {
-	            Z = qnorm((1.0-u)*pnorm(-mtotalfit[i]-binary_offset,0.0,1.0,1,0) + u,0.0,1.0,1,0);
-	         } else {
-	            Z = -qnorm((1.0-u)*pnorm(mtotalfit[i]+binary_offset,0.0,1.0,1,0) + u,0.0,1.0,1,0);
-	         }
-	         Y[i] = mtotalfit[i] + Z;
-	      }
+	    u = unif_rand();
+	    if(YDat[i][1] > 0) {
+	       Z = qnorm((1.0-u)*pnorm(-mtotalfit[i]-binary_offset,0.0,1.0,1,0) + u,0.0,1.0,1,0);
+	    } else {
+	       Z = -qnorm((1.0-u)*pnorm(mtotalfit[i]+binary_offset,0.0,1.0,1,0) + u,0.0,1.0,1,0);
+	    }
+	    Y[i] = mtotalfit[i] + Z;
+	 }
       }
       if(k%keepevery==0) {
          //double sum;
@@ -416,7 +385,7 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
          }
          if(!binary) sdraw[scnt] = sd.getS(); scnt++;
          countVarUsage(theTrees,varcnt);
-         for(int i=1;i<=NumX;i++) { vcdraw[vcnt] = varcnt[i]; vcnt++;}
+         for(int i=1;i<=NumX;i++) { vcdraw[vcnt] = varcnt[i]; vcnt++;} 
       }
    }
    int time2 = time(&tp);
@@ -433,7 +402,7 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
 
    Rprintf("Variable Usage, last iteration (var:count):\n");
    countVarUsage(theTrees,varcnt);
-   for(ivs i=1;i<varcnt.size();i++) {
+   for(ivs i=1;i<varcnt.size();i++) {  
       Rprintf("(%d: %d) ",i,varcnt[i]);
       if(i%5 == 0) Rprintf("\n");
    }
@@ -441,7 +410,7 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
    Rprintf("\nDONE BART 11-2-2014\n\n");
    }
 
-   //delete
+   //delete 
    if(nrowTest) {
       Lib::dealmat(mtestFits);
       Lib::dealmat(XTest);
@@ -456,20 +425,15 @@ void mbart(int *iNumObs, int *iNumX, int *inrowTest,
    delete [] RuleNum;
    for(int i=1;i<=NumX;i++) delete [] RuleMat[i];
    delete [] RuleMat;
-   for(nvs i=1;i<theTrees.size();i++){
-     theTrees[i]->deall();
-     if(theTrees[i])
-       delete theTrees[i];
-   }
-
-   delete [] onev;
+   for(nvs i=1;i<theTrees.size();i++)
+      theTrees[i]->deall();
+   
    delete [] eps;
    delete [] mtotalfit;
    delete [] mfits[1];
    delete [] mfits[2];
    delete [] mfits;
    if(VarType) delete [] VarType;
-   if(usepg) delete[] track_vec;
 
    PutRNGstate();
 }

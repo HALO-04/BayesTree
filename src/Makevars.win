@@ -1,1 +1,1 @@
-PKG_LIBS=-L$(R_HOME)/bin -std=c++11 -lRblas
+PKG_LIBS=-L$(R_HOME)/bin -lRblas

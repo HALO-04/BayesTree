@@ -1,4 +1,4 @@
- #ifndef GUARD_MuS
+#ifndef GUARD_MuS
 #define GUARD_MuS
 
 #include "Lib.h"
@@ -26,18 +26,18 @@ public:
    double getA() { return a;}
    // EndNodeModel ---------------------------------
    virtual int getEstimateDim() const {return 1;}
-   virtual double* getParameterEstimate();
+   virtual double* getParameterEstimate(); 
    virtual double* getFits(int np, double** xpred, int* indpred);
    virtual double getLogILik();
    virtual void setData(int nob, double **x, double *y,
-                        int *indices, double *w);
+                        int *indices, double *w); 
    // public methods -----------------------------
    void toScreen() const;
    void drawPost();
    void clearData() {nob=0;y=0;indices=0;updatepost();}
 private:
    //parameter // xi ~ N(mu,sig2)---
-   double mu;
+   double mu;  
    // other------------
    double sigma2;
    // prior------------- mu ~ N(0,1/a) , prior

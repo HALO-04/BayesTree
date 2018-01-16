@@ -29,7 +29,7 @@ public:
         Lib() {}
         ~Lib() {}
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
+        
         // static public methods-----------------------------------------
         static double** almat(long n, long m);
         static void dealmat(double** mat);
@@ -52,13 +52,6 @@ public:
         static double nextGaussian() { return norm_rand();}
         static double genChi2(int nu) {return rchisq((double)nu);}
         static int Disc(Vec& p);
-
-        static void SampleMultinomial(double* probs, int size, int* result, int n);
-        static void shuffle(int* array, int size);
-        static double softmax(double* log_weights, double* norm_weights, int size, double& log_max);
-
-
-
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

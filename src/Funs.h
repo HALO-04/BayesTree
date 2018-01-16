@@ -1,5 +1,3 @@
-#include <vector>
-
 typedef Node *NodeP;
 
 void MakeBotVec(Node *top,NodeP **botvec,int *NBot);
@@ -8,7 +6,7 @@ void MakeNotBotVec(Node *top,NodeP **notbotvec,int *Nnotbot);
 void MakeSwapVec(Node *top,NodeP **swapvec,int *Nswap);
 
 
-void MakeIntVec(std::vector<int>& intlist, int **ivec, int *n);
+void MakeIntVec(List *intlist, int **ivec, int *n);
 
 
 void GetDataInd(Node *top,int *ind);

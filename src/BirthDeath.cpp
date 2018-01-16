@@ -52,7 +52,7 @@ double DrNogNode(Node *top,Node **n)
 
 	int nnog,NodeI;
 	NodeP *nogvec;
-	MakeNogVec(top,&nogvec,&nnog);
+	MakeNogVec(top,&nogvec,&nnog); 
 
 	double u=unif_rand();
 	NodeI =  (int)floor(u*nnog)+1;
@@ -111,9 +111,9 @@ double PrBotNode(Node *top,Node *node)
 //	prob of drawing the bottom node as a birth node
 {
 	double PrNode=-1;
-
+	
 	int nbot;
-
+	
 	NodeP *botvec;
 	MakeBotVec(top,&botvec,&nbot); // get vector of bottom nodes
 
@@ -197,6 +197,7 @@ double BirthDeath(Node *top,int *BD,int *Done)
 	int LeftEx,RightEx;
 	double alpha1,alpha2,alpha;
 
+
 	double Ly,Lx;
 
 	Rule *rule=new Rule;
@@ -205,16 +206,16 @@ double BirthDeath(Node *top,int *BD,int *Done)
 
 	PBx=PBirth(top,&n,&Pbot);
 
-
-
-
+	
+	
+	
 	if(Bern(PBx)) {
-
+	
 		*BD=1;
 
-
-		PGn = PGrow(n);
-
+		
+		PGn = PGrow(n);	
+	
 		Lx = LogLT(n,top);
 
 		VarI = DrPriVar(n);//draw variable
@@ -231,30 +232,30 @@ double BirthDeath(Node *top,int *BD,int *Done)
 		PGl = PGrow(n->LeftC);
 		PGr = PGrow(n->RightC);
 		Ly = LogLT(n,top);
-
+		
 		Pnog = 1.0/((double)(top->NumNogNodes()));
-
+	
 		PDy = 1.0-PBirth(top,&tempnode,&temprob);
 
 		alpha1 = (PGn*(1.0-PGl)*(1.0-PGr)*PDy*Pnog)/((1.0-PGn)*PBx*Pbot);
 		alpha2 = alpha1*exp(Ly-Lx);
 		alpha = min(1.0,alpha2);
-
-		if(Bern(alpha)) {
+			
+		if(Bern(alpha)) {		
 			*Done=1;
 		} else {
-
+			
 			KillChildren(n);
 			*Done=0;
 		}
 	} else {
-
+			
 			*BD=0;
 			PDx=1-PBx;
 			Pnog = DrNogNode(top,&n);
 			PGl = PGrow(n->LeftC);
 			PGr = PGrow(n->RightC);
-
+			
 			Lx = LogLT(n,top);
 
 			CopyRule(&(n->rule),rule);
@@ -262,7 +263,7 @@ double BirthDeath(Node *top,int *BD,int *Done)
 			RightEx=1-((n->RightC)->VarAvail[(n->rule).Var]);
 
 			KillChildren(n);
-
+		
 			Ly = LogLT(n,top);
 			PBy = PBirth(top,&tempnode,&temprob);
 			PGn = PGrow(n);
@@ -270,26 +271,26 @@ double BirthDeath(Node *top,int *BD,int *Done)
 			alpha1 =((1.0-PGn)*PBy*Pbot)/(PGn*(1.0-PGl)*(1.0-PGr)*PDx*Pnog);
 			alpha2 = alpha1*exp(Ly-Lx);
 			alpha = min(1,alpha2);
-
+			
 			if(Bern(alpha)) {
-
+				
 				*Done=1;
 			} else {
 				//put back rule and children
-
+				
 				CopyRule(rule,&(n->rule));
 				SpawnChildren(n,LeftEx,RightEx);
-
+				
 				*Done=0;
 
 			}
-
+			
 	}
 	delete rule;
 
 	return alpha;
 
-
+	
 }
 
 

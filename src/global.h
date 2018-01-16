@@ -17,7 +17,6 @@ extern double pChange;
 extern int NumX;
 extern int *VarType;
 extern int NumY;
-extern int NumParticle;
 
 extern int NumObs;
 extern double **XDat;
@@ -27,17 +26,15 @@ extern double **XDatR;
 extern int NumXR;
 extern double* weights;
 
-extern int *RuleNum;
-extern double **RuleMat;
+extern int *RuleNum; 
+extern double **RuleMat; 
 
 extern int *Ivec; //global vector defined to be 1,2,3,...NumObs in main
 
 #include "CPriParams.h"
 #include "EndNodeModel.h"
-#include "pg.h"
 
 extern CPriParams PriParams;
 extern EndNodeModel* endNodeModel;
-//extern Cachetemp cachetemp;
 
 
